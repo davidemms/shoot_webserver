@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang = 'en'>
+
+<head>
+
+    <meta charset="utf-8">
+    <!-- Latest compiled and minified CSS -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootswatch/4.1.1/spacelab/bootstrap.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <style>
+
+        nav {
+          margin-bottom: 25px;
+        }
+
+        .fa-rotate-45 {
+          -webkit-transform: rotate(45deg);
+          -moz-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+          -o-transform: rotate(45deg);
+          transform: rotate(45deg);
+        }
+
+        .fa-rotate-135 {
+          -webkit-transform: rotate(135deg);
+          -moz-transform: rotate(135deg);
+          -ms-transform: rotate(135deg);
+          -o-transform: rotate(135deg);
+          transform: rotate(135deg);
+        }
+
+        @media (max-width: 1075px) { 
+          .container {
+            padding-top: 50px;
+          }
+        }
+
+        .btn {
+          height: 30px;
+        }
+
+        .btn-lg{
+          height: 45px;
+          margin-top: 5px;
+        }
+
+        #toolbar {
+          display: flex;
+          justify-content: space-between;
+          width: 550px;
+        }
+        
+        #controls {
+          position: fixed;
+          left: 5px;
+        }
+   </style>
+</head>
+
+<body>
+
+<!--
+###############################################################################################################################
+-->
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+  <a class="navbar-brand" href="/">SHOOT a gene into the Tree of Life</a>
+
+</nav>
+
+  <!-- <form name="sequence_form" id="submission_form_seq" action="/shoot/result.html" onsubmit="return validate_seqeunce()" method="post"> -->
+<form name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_seqeunce()" method="post">
+<div class="container" id = 'submission_form'>
+<div class="container" id = 'paste_sequence'>   
+<a>Input protein sequence</a>
+
+<div class="container-fluid" id = 'sequence_body'>
+    <textarea spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>tr|E3JZJ1|E3JZJ1_PUCGT
+MSTRVKNCTIICSAILQLFLPASAMEGAGGLVVISNCLYEGCRKKCHVLPDTLVRQYRFP
+LEGECGPYFDGQSWKHCHNIRRKIYFRCGTCARLHYTNWTMVRVVTGEDCWIKPHLTLDK
+VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
+</div>
+</div>
+
+<!-- <div class="container" id = 'fasta_upload'>
+        Or, upload FASTA file:
+        <input type="file" id="newick_file"/>
+</div> -->
+
+<button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button'>Submit</button>
+<!-- <p>
+  <input class="submit" type="submit" value="Submit">
+</p> -->
+<!-- <button class="btn btn-primary btn-lg btn-block" type="button" id = 'validate_sequence_simple'>Submit</button> -->
+</div>
+</form>
+<!--
+###############################################################################################################################
+-->
+
+<script>
+
+function validate_seqeunce(){
+    var isValid = true;
+    var input_string = $('textarea[id$="seq_spec"]').val();
+
+    var values = process_sequence(input_string);
+    var name = values[0];
+    var seq = values[1];
+
+    return (is_sequence_ok(seq));
+};
+
+
+  function is_sequence_ok(seq)  {
+  var c, i;
+  var len = seq.length;
+  for (i = 0; i < len; i++) {
+    c = seq.charCodeAt(i);
+    if (!(c > 64 && c < 91) && // upper alpha (A-Z)
+        !(c > 96 && c < 123)) { // lower alpha (a-z)
+          alert("Protein sequence can only contain characters a-z or A-Z.");
+      return false;
+    }
+  }
+  return true;
+};
+
+function process_sequence(seq_str)  {
+  var res = seq_str.split(">");
+  if (res.len > 2) {
+    alert("Multiple sequence found, using only the first one");
+  }
+
+  var lines = seq_str.split("\n");
+  var name = "";
+  var seq = "";
+
+  for (const l of lines) {
+    if (l.startsWith(">")) {
+      if (name.len > 0) {
+        break;
+      }
+      name = l.substring(1);
+    }
+    else if (l.len == 0) {
+      break;
+    }
+    else {
+      seq = seq.concat(l);
+    }
+  }
+  // split into lines, remove first line
+  // alert(seq_str.len.toString());
+
+  if (seq.len > 10000) {
+    alert("Truncated input sequence to maximum length of 10000")
+    seq = seq.substring(0, 10000);
+  }
+  return [name, seq];
+}
+
+// $("#validate_sequence").on ("click", function (e) {
+//     if (validateForm()) {
+//       window.location = "result.html";
+//     }
+//     // else is needed only if you want to handle something special if the form is not valid
+//     // unless the validation will be called again next time clicking the submitContactBtn
+// });
+
+</script>
+
+</body>
+</html>
