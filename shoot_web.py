@@ -21,6 +21,6 @@ def result():
         newick_str = newick_str.replace("Data", submitted_data[1:5])
         success, seq_name, seq, error = shoot_wrapper.validate_data(submitted_data)
         if success:
-            newick_str = shoot_wrapper.run_shoot(seq_name, seq)
+            newick_str = shoot_wrapper.run_shoot_remote(seq_name, seq)
     return render_template("result.html", newick_str=newick_str, highlight=seq_name, error=error)
 
