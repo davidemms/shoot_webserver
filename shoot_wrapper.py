@@ -15,8 +15,14 @@ def validate_data(text):
     error = None
     if text.startswith(">"):
         name, seq = text.split("\n", 1)
+        if name.startswith(">"):
+            name = name[1:]
+        name = name.rstrip()
+        seq = seq.rstrip()
         # clean up name
-        name = re.sub('[^a-zA-Z0-9\./-]', '_', name)
+        print("-" + name + "-")
+        print("-" + seq + "-")
+        name = re.sub('[^a-zA-Z0-9\.-]', '_', name)
     else:
         name = "QUERY_GENE"
         seq = text
@@ -25,7 +31,7 @@ def validate_data(text):
     # check protein sequence
     bad_chars = re.sub('[a-zA-Z\-]', "", seq)
     if len(bad_chars) > 0:
-        error = "Error, bad characters in sequence data ---%s---" % bad_chars
+        error = "Error, bad characters in sequence data: %s" % bad_chars
         return False, None, None, error
     return True, name, seq, error
    
@@ -100,7 +106,8 @@ def get_lines(text, n=60):
 
 
 def run_shoot_local(name, seq):
-    newick_str = "((Still:0.150276,not:0.213019):0.230956,(quite:0.263487,successful:0.202633):0.2)myroot"
+    err_string = ""
+    newick_str = "()myroot"
     letters = string.ascii_lowercase
     fn_seq = "/tmp/shoot_%s.fa" % ''.join(random.choice(letters) for i in range(16))
     with open(fn_seq, 'w') as outfile:
@@ -113,7 +120,7 @@ def run_shoot_local(name, seq):
         newick_str = next(infile).strip()
         newick_str = newick_str[:-1] # remove semi-colon
     # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
-    return newick_str
+    return newick_str, err_string
 
 def run_shoot_remote(name, seq):
     """
@@ -129,6 +136,7 @@ def run_shoot_remote(name, seq):
     then the command is constructed like this:
     "string in triple quotes" % y
     """
+    err_string = ""
     name = name[:100]
     seq = seq[:100000]
     letters = string.ascii_lowercase
@@ -158,7 +166,6 @@ def run_shoot_remote(name, seq):
         newick_str = newick_str[:-1] # remove semi-colon
     except Exception as e:
         print(str(e))
-        newick_str = "((Tree:0.150276,was:0.213019):0.230956,(not:0.263487,successful:0.202633):0.2)myroot"
-    # print(newick_str)
-    # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
-    return newick_str
+        err_string = "No hit was found"
+        newick_str = "()myroot"
+    return newick_str, err_string

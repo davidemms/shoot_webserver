@@ -13,14 +13,12 @@ def index():
 @app.route('/result', methods=['POST', ])
 def result():
     error = None
-    newick_str = "((Data:0.150276,Was:0.213019):0.230956,(Not:0.263487,Correct:0.202633):0.2)myroot"
+    newick_str = "()1.0:myroot"
     seq_name = ""
     if request.method == 'POST':
-        newick_str = "((Data:0.150276,Was:0.213019):0.230956,(Posted:0.263487,Yes:0.202633):0.2)myroot"
         submitted_data = request.form["seq_data"]
-        newick_str = newick_str.replace("Data", submitted_data[1:5])
-        success, seq_name, seq, error = shoot_wrapper.validate_data(submitted_data)
+        success, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_data)
         if success:
-            newick_str = shoot_wrapper.run_shoot_remote(seq_name, seq)
-    return render_template("result.html", newick_str=newick_str, highlight=seq_name, error=error)
+            newick_str, err_string = shoot_wrapper.run_shoot_remote(seq_name, seq)
+    return render_template("result.html", newick_str=newick_str, highlight=seq_name, error=err_string)
 

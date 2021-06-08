@@ -4,6 +4,8 @@
 <head>
 
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- Latest compiled and minified CSS -->
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
@@ -14,10 +16,6 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootswatch/4.1.1/spacelab/bootstrap.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <style>
 
@@ -81,17 +79,21 @@
 
 </nav>
 
-  <!-- <form name="sequence_form" id="submission_form_seq" action="/shoot/result.html" onsubmit="return validate_seqeunce()" method="post"> -->
-<form name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_seqeunce()" method="post">
+  <!-- <form name="sequence_form" id="submission_form_seq" action="/shoot/result.html" onsubmit="return validate_sequence()" method="post"> -->
+<form name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_sequence()" method="post">
 <div class="container" id = 'submission_form'>
 <div class="container" id = 'paste_sequence'>   
 <a>Input protein sequence</a>
-
+<div class="input-group has-validation">
 <div class="container-fluid" id = 'sequence_body'>
     <textarea spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>tr|E3JZJ1|E3JZJ1_PUCGT
 MSTRVKNCTIICSAILQLFLPASAMEGAGGLVVISNCLYEGCRKKCHVLPDTLVRQYRFP
 LEGECGPYFDGQSWKHCHNIRRKIYFRCGTCARLHYTNWTMVRVVTGEDCWIKPHLTLDK
 VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
+</div>
+<div class="invalid-feedback">
+  Please enter a valid protein sequence
+</div>
 </div>
 </div>
 
@@ -119,12 +121,12 @@ VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
 </ul>
 
 <!--
-###############################################################################################################################
+################################################################  ###############################################################
 -->
 
 <script>
 
-function validate_seqeunce(){
+function validate_sequence(){
     var isValid = true;
     var input_string = $('textarea[id$="seq_spec"]').val();
 
@@ -132,22 +134,7 @@ function validate_seqeunce(){
     var name = values[0];
     var seq = values[1];
 
-    return (is_sequence_ok(seq));
-};
-
-
-  function is_sequence_ok(seq)  {
-  var c, i;
-  var len = seq.length;
-  for (i = 0; i < len; i++) {
-    c = seq.charCodeAt(i);
-    if (!(c > 64 && c < 91) && // upper alpha (A-Z)
-        !(c > 96 && c < 123)) { // lower alpha (a-z)
-          alert("Protein sequence can only contain characters a-z or A-Z.");
-      return false;
-    }
-  }
-  return true;
+    return is_sequence_ok(seq);
 };
 
 function process_sequence(seq_str)  {
@@ -155,7 +142,6 @@ function process_sequence(seq_str)  {
   if (res.len > 2) {
     alert("Multiple sequence found, using only the first one");
   }
-
   var lines = seq_str.split("\n");
   var name = "";
   var seq = "";
@@ -173,9 +159,9 @@ function process_sequence(seq_str)  {
     else {
       seq = seq.concat(l);
     }
+    name = name.trim();
+    seq = seq.trim();
   }
-  // split into lines, remove first line
-  // alert(seq_str.len.toString());
 
   if (seq.len > 10000) {
     alert("Truncated input sequence to maximum length of 10000")
@@ -183,6 +169,25 @@ function process_sequence(seq_str)  {
   }
   return [name, seq];
 }
+
+function is_sequence_ok(seq)  {
+  var c, i;
+  var len = seq.length;
+  if (len < 1) {
+    alert("Empty input sequence");
+    return false;
+  }
+  for (i = 0; i < len; i++) {
+    c = seq.charCodeAt(i);
+    if (!(c > 64 && c < 91) && // upper alpha (A-Z)
+        !(c > 96 && c < 123)) { // lower alpha (a-z)
+          alert("Protein sequence can only contain characters a-z or A-Z.");
+      return false;
+    }
+  }
+  return true;
+};
+
 
 // $("#validate_sequence").on ("click", function (e) {
 //     if (validateForm()) {
@@ -193,6 +198,11 @@ function process_sequence(seq_str)  {
 // });
 
 </script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 
 </body>
 </html>
