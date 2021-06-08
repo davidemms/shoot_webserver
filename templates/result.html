@@ -67,11 +67,6 @@
 
 <body>
 
-{% if error %}
-<h1>Error messages:</h1>
-<p>{{ error }}</p>
-{% endif %}
-
 <!--
 ###############################################################################################################################
 -->
@@ -174,6 +169,13 @@
     <form id = 'controls_form' style = 'width:200px;'>
     </form>
 </div>
+
+{% if error %}
+<div class="alert alert-warning" role="alert">  
+<h1>Messages:</h1>
+<p>{{ error }}</p>
+</div>
+{% endif %}
 
 <div class = 'container' id = "main_display">
 

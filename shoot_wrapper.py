@@ -160,6 +160,9 @@ def run_shoot_remote(name, seq):
     # print(rc)
     # print(err)
     # print(stdout)
+    for l in stdout:
+        if l.startswith("WARNING"):
+            err_string = l.rstrip()
     try:
         newick_str = stdout[-1].rstrip()
         t = ete3.Tree(newick_str)

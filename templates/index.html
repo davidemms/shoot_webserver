@@ -79,22 +79,44 @@
 
 </nav>
 
-  <!-- <form name="sequence_form" id="submission_form_seq" action="/shoot/result.html" onsubmit="return validate_sequence()" method="post"> -->
-<form name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_sequence()" method="post">
-<div class="container" id = 'submission_form'>
+<form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_sequence()" method="post" novalidate>
+  <div class="container" id = 'submission_form'>
+
 <div class="container" id = 'paste_sequence'>   
-<a>Input protein sequence</a>
+<h2>Input protein sequence:</h2>
 <div class="input-group has-validation">
 <div class="container-fluid" id = 'sequence_body'>
-    <textarea spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>tr|E3JZJ1|E3JZJ1_PUCGT
+    <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>tr|E3JZJ1|E3JZJ1_PUCGT
 MSTRVKNCTIICSAILQLFLPASAMEGAGGLVVISNCLYEGCRKKCHVLPDTLVRQYRFP
 LEGECGPYFDGQSWKHCHNIRRKIYFRCGTCARLHYTNWTMVRVVTGEDCWIKPHLTLDK
 VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
 </div>
-<div class="invalid-feedback">
-  Please enter a valid protein sequence
+ 
+<!-- <h2>Database:</h2>
+<div class="container" id = 'database_selection'>
+  <select class="custom-select">
+  <option selected>Database:</option>
+  <option value="1">Quest for Orthologs Reference proteomes 2020</option>
+  <option value="2">Eukaryotes</option>
+  <option value="3">Bacteria</option>
+  <option value="3">Archaea</option>
+  <option value="3">Metazoa</option>
+  <option value="3">Plants</option>
+  <option value="3">Fungi</option>
+</select>
+</div>  database_selection - -->
 </div>
-</div>
+<span>
+  <div class="alert alert-warning" role="alert" id="invalid_chars_in_seq">  
+    Protein sequence can only contain characters a-z or A-Z.
+  </div>
+  <div class="alert alert-warning" role="alert" id="empty_seq">  
+  Input sequence is empty
+  </div>
+  <div class="alert alert-warning" role="alert" id="multiple_seqs">
+    Multiple sequences, only the first one will be used
+  </div>
+  </span> 
 </div>
 
 <!-- <div class="container" id = 'fasta_upload'>
@@ -103,21 +125,17 @@ VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
 </div> -->
 
 <button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button'>Submit</button>
-<!-- <p>
-  <input class="submit" type="submit" value="Submit">
-</p> -->
-<!-- <button class="btn btn-primary btn-lg btn-block" type="button" id = 'validate_sequence_simple'>Submit</button> -->
 </div>
 </form>
-
-<h1>About SHOOT</h1>
+<div class="container my-5" id = 'about_text'>
+<h2>About SHOOT</h2>
 <p>While BLAST searches against a database of gene sequences, SHOOT allows you to search against a database of gene trees. This has a number of advantages:</p>
 <ul>
   <li>The gene tree displays the actual relationships between genes.</li>
   <li>The gene tree allows orthologs (and paralogs) to be identified.</li>
   <li>The gene tree gives an intuitive view of the evolution of the gene family.</li>
   <li>SHOOT has carefully curated databases of species so that a gene's history is not obscured by many near-identical hits.</li>
-
+</div>
 </ul>
 
 <!--
@@ -127,6 +145,7 @@ VPIKPPELDLIAHFSGQGSSSAGPST</textarea>
 <script>
 
 function validate_sequence(){
+    $(".alert").hide()
     var isValid = true;
     var input_string = $('textarea[id$="seq_spec"]').val();
 
@@ -134,13 +153,17 @@ function validate_sequence(){
     var name = values[0];
     var seq = values[1];
 
-    return is_sequence_ok(seq);
+    isValid = is_sequence_ok(seq);
+    if (isValid) {
+      $(".alert").hide()
+    }
+    return isValid;
 };
 
 function process_sequence(seq_str)  {
   var res = seq_str.split(">");
-  if (res.len > 2) {
-    alert("Multiple sequence found, using only the first one");
+  if (res.length > 2) {
+    alert("WARNING: Multiple sequences, only the first will be used")
   }
   var lines = seq_str.split("\n");
   var name = "";
@@ -174,28 +197,21 @@ function is_sequence_ok(seq)  {
   var c, i;
   var len = seq.length;
   if (len < 1) {
-    alert("Empty input sequence");
+    $("#empty_seq").show()
     return false;
   }
   for (i = 0; i < len; i++) {
     c = seq.charCodeAt(i);
     if (!(c > 64 && c < 91) && // upper alpha (A-Z)
         !(c > 96 && c < 123)) { // lower alpha (a-z)
-          alert("Protein sequence can only contain characters a-z or A-Z.");
+          $("#invalid_chars_in_seq").show()
       return false;
     }
   }
   return true;
 };
 
-
-// $("#validate_sequence").on ("click", function (e) {
-//     if (validateForm()) {
-//       window.location = "result.html";
-//     }
-//     // else is needed only if you want to handle something special if the form is not valid
-//     // unless the validation will be called again next time clicking the submitContactBtn
-// });
+$(".alert").hide()
 
 </script>
 
