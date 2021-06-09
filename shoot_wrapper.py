@@ -20,8 +20,8 @@ def validate_data(text):
         name = name.rstrip()
         seq = seq.rstrip()
         # clean up name
-        print("-" + name + "-")
-        print("-" + seq + "-")
+        # print("-" + name + "-")
+        # print("-" + seq + "-")
         name = re.sub('[^a-zA-Z0-9\.-]', '_', name)
     else:
         name = "QUERY_GENE"
@@ -35,52 +35,6 @@ def validate_data(text):
         return False, None, None, error
     return True, name, seq, error
    
-def flow_text(text, n=60):
-    """Split text onto lines of no more that n characters long
-    """
-    lines = r""
-    while len(text) > 0:
-        if len(lines) > 0: lines += "\n"
-        if len(text) > n:
-            # split at no more than 60
-            iEnd = n
-            while iEnd > 0 and text[iEnd] != " ": iEnd-=1
-            if iEnd == 0:
-                # there was nowhere to split it at a blank, just have to split at 60
-                lines += text[:n]
-                text = text[n:]
-            else:
-                # split at blank
-                lines += text[:iEnd]
-                text = text[iEnd+1:]  # skip blank
-        else:
-            lines += text
-            text = ""
-    return lines    
-
-def flow_text_raw_string(text, n=60):
-    """Split text onto lines of no more that n characters long
-    """
-    lines = r""
-    while len(text) > 0:
-        if len(lines) > 0: lines += r"\n"
-        if len(text) > n:
-            # split at no more than 60
-            iEnd = n
-            while iEnd > 0 and text[iEnd] != " ": iEnd-=1
-            if iEnd == 0:
-                # there was nowhere to split it at a blank, just have to split at 60
-                lines += text[:n]
-                text = text[n:]
-            else:
-                # split at blank
-                lines += text[:iEnd]
-                text = text[iEnd+1:]  # skip blank
-        else:
-            lines += text
-            text = ""
-    return lines   
-
 
 def get_lines(text, n=60):
     """Split text onto lines of no more that n characters long
@@ -112,7 +66,7 @@ def run_shoot_local(name, seq):
     fn_seq = "/tmp/shoot_%s.fa" % ''.join(random.choice(letters) for i in range(16))
     with open(fn_seq, 'w') as outfile:
         outfile.write(">%s\n" % name)
-        outfile.write(flow_text(seq))
+        outfile.write("\n".join(get_lines(seq)))
     sys.path.append("/home/emms/workspace/git/shoot_prototype")
     import shoot
     fn_tree = shoot.main("/data/SHOOT/Results_Mar16/", fn_seq, True)
@@ -139,12 +93,12 @@ def run_shoot_remote(name, seq):
     err_string = ""
     name = name[:100]
     seq = seq[:100000]
-    letters = string.ascii_lowercase
-    fn_seq = "/tmp/shoot_%s.fa" % ''.join(random.choice(letters) for i in range(16))
+    submission_id = ''.join(random.choice(string.ascii_letters) for i in range(16))
+    fn_seq = "/tmp/shoot_%s.fa" % submission_id
     fasta_lines = [">" + name,] + get_lines(seq)
     fasta_conts = r"\n".join(fasta_lines)
     cmd = """ssh emms@dps008.plants.ox.ac.uk 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, shoot_db, shoot_opt)
-    print(cmd)
+    # print(cmd)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = [x for x in capture.stdout]
     stderr = [x for x in capture.stderr]
@@ -160,9 +114,12 @@ def run_shoot_remote(name, seq):
     # print(rc)
     # print(err)
     # print(stdout)
+    iog_str = "-1"
     for l in stdout:
-        if l.startswith("WARNING"):
+        if l.startswith("WARNING: "):
             err_string = l.rstrip()
+        if l.startswith("Gene assigned to: "):
+            iog_str = l.split(": ", 1)[1].rstrip()[2:]   # clip off the 'OG'
     try:
         newick_str = stdout[-1].rstrip()
         t = ete3.Tree(newick_str)
@@ -171,4 +128,4 @@ def run_shoot_remote(name, seq):
         print(str(e))
         err_string = "No hit was found"
         newick_str = "()myroot"
-    return newick_str, err_string
+    return newick_str, err_string, submission_id, iog_str

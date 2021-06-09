@@ -52,6 +52,10 @@
           height: 30px;
         }
 
+        .query_gene {
+          color:#2b8cbe;
+        }
+
         #toolbar {
           display: flex;
           justify-content: space-between;
@@ -176,6 +180,11 @@
 <p>{{ error }}</p>
 </div>
 {% endif %}
+
+<div class="container">
+  <p class="lead">Query gene: <span class="query_gene">{{ query_gene_name }}</span></p>
+</div>
+
 
 <div class = 'container' id = "main_display">
 
@@ -445,7 +454,6 @@ function node_colorizer (element, data) {
 try{
 
    var count_class = 0;
-
     selection_set.forEach (function (d,i) { if (data[d]) {count_class ++; element.style ("fill", color_scheme(i), i == current_selection_id ?  "important" : null);}});
 
     if (count_class > 1) {
@@ -466,9 +474,8 @@ catch (e) {
 
 function node_colorizer_ed_v2 (element, data) {
 try{
-  // console.log(data.data.name);
-  if (data.data.name.includes(highlight_gene)) {
-    element.style ("fill", color_scheme(1), "important");
+  if (data.data.name == query_gene_name) {
+    element.style ("fill", "#2b8cbe", "important");
   }
 }
 catch (e) {
@@ -635,10 +642,10 @@ var width  = 800, //$(container_id).width(),
 
 {% if newick_str %}
     var initial_string = "{{ newick_str }}";
-    var highlight_gene = "{{ highlight }}";
+    var query_gene_name = "{{ query_gene_name }}";
 {% else %}
-    var initial_string = "((EELA:0.150276,CONGERA:0.213019):0.230956,(EELB:0.263487,CONGERB:0.202633):0.2)myroot";
-    var highlight_gene = "";
+    var initial_string = "()myroot";
+    var query_gene_name = "";
 {% endif %}
 var container_id = '#tree_container';
 
