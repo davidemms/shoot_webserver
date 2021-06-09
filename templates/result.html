@@ -86,10 +86,12 @@
       <li class="nav-item dropdown">
         <a href="#" id="newick-dropdown" class="nav-link dropdown-toggle" role="button" data-toggle="modal" data-target="#newick_export_modal">Export tree <b class="caret"></b></a>
       </li>
-
+      <li class="nav-item">
+        <a href="download_fasta" class="nav-link" role="button">Export sequences</a>
+      </li>
     </ul>
 
-    <ul class="nav navbar-nav mx-auto">
+    <!-- <ul class="nav navbar-nav mx-auto">
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Tag 
@@ -130,7 +132,7 @@
           <a id="or_label" class="dropdown-item" href="#">Label internal nodes using disjunction (OR)</a>
         </div>
       </li>
-    </ul>
+    </ul> -->
 
     <ul class="navbar-nav ml-auto">
       <li>
@@ -272,6 +274,22 @@ $('#newick_export_modal').on('show.bs.modal', function (e) {
         )
     );
 })
+
+
+// $('#sequences_export').on('click', function (e) {
+//   var filename="hello.txt"
+//   var text = "This is the contents"
+//   var element = document.createElement('a');
+//   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+//   element.setAttribute('download', filename);
+
+//   element.style.display = 'none';
+//   document.body.appendChild(element);
+
+//   element.click();
+
+//   document.body.removeChild(element);
+// });
 
 $("#newick_file").on ("change", function (e) {
 
@@ -885,7 +903,7 @@ $( document ).ready( function () {
     //                              {'detail' : ['cancel', null]}));
     // $("#selection_name_box").get(0).addEventListener(selection_menu_element_action,selection_handler_name_box,false);
     // $("#save_selection_name").get(0).addEventListener(selection_menu_element_action,selection_handler_save_selection_name,false);
-    $("#selection_name_dropdown").get(0).addEventListener(selection_menu_element_action,selection_handler_name_dropdown,false);
+    // $("#selection_name_dropdown").get(0).addEventListener(selection_menu_element_action,selection_handler_name_dropdown,false);
     update_selection_names();
 
    $("#save_image").on ("click", function (e) {

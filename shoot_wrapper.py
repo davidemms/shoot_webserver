@@ -1,3 +1,4 @@
+from os import POSIX_FADV_SEQUENTIAL
 import re
 import sys
 import ete3
@@ -8,8 +9,12 @@ import subprocess
 py_path = ":".join(["/lv01/home/emms/anaconda3/lib/python3.6/site-packages"])
 
 shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/shoot/shoot_prototype/shoot.py"
-shoot_db = "/lv01/data/emms/shoot/DATA/Results_Mar16/"
+shoot_db_dir = "/lv01/data/emms/shoot/DATA/"
 shoot_opt = "-m -p"
+db_default = "Results_Mar16"  # note, not forward slash
+available_databases = {db_default, }
+gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
+gene_name_allowed_chars_re = "^[A-Za-z0-9_\\-.]*$"
 
 def validate_data(text):
     error = None
@@ -22,7 +27,7 @@ def validate_data(text):
         # clean up name
         # print("-" + name + "-")
         # print("-" + seq + "-")
-        name = re.sub('[^a-zA-Z0-9\.-]', '_', name)
+        name = re.sub(gene_name_disallowed_chars_re, '_', name)
     else:
         name = "QUERY_GENE"
         seq = text
@@ -30,7 +35,8 @@ def validate_data(text):
     seq = ''.join(seq.split()) # squeeze to a single string
     # check protein sequence
     bad_chars = re.sub('[a-zA-Z\-]', "", seq)
-    if len(bad_chars) > 0:
+    # eat our own dog food for the valid_gene_name function. It must work here!
+    if len(bad_chars) > 0 or not valid_gene_name(name):
         error = "Error, bad characters in sequence data: %s" % bad_chars
         return False, None, None, error
     return True, name, seq, error
@@ -66,7 +72,7 @@ def run_shoot_local(name, seq):
     fn_seq = "/tmp/shoot_%s.fa" % ''.join(random.choice(letters) for i in range(16))
     with open(fn_seq, 'w') as outfile:
         outfile.write(">%s\n" % name)
-        outfile.write("\n".join(get_lines(seq)))
+        outfile.write("\n".join(get_lines(seq)) + "\n")
     sys.path.append("/home/emms/workspace/git/shoot_prototype")
     import shoot
     fn_tree = shoot.main("/data/SHOOT/Results_Mar16/", fn_seq, True)
@@ -96,8 +102,9 @@ def run_shoot_remote(name, seq):
     submission_id = ''.join(random.choice(string.ascii_letters) for i in range(16))
     fn_seq = "/tmp/shoot_%s.fa" % submission_id
     fasta_lines = [">" + name,] + get_lines(seq)
-    fasta_conts = r"\n".join(fasta_lines)
-    cmd = """ssh emms@dps008.plants.ox.ac.uk 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, shoot_db, shoot_opt)
+    fasta_conts = r"\n".join(fasta_lines) + r"\n"
+    db = shoot_db_dir + db_default + "/"
+    cmd = """ssh emms@dps008.plants.ox.ac.uk 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, db, shoot_opt)
     # print(cmd)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = [x for x in capture.stdout]
@@ -129,3 +136,81 @@ def run_shoot_remote(name, seq):
         err_string = "No hit was found"
         newick_str = "()myroot"
     return newick_str, err_string, submission_id, iog_str
+
+def valid_iog_format(iog_str):
+    """
+    Is the iog_str in the valid format (doesn't check if it exists))
+    Args:
+        iog_str - str representing the iog integer
+    Returns:
+        True is valid, otherwise False
+    """
+    try:
+        if len(iog_str) != 7:
+            return False
+        if not iog_str.isdigit():
+            return False
+        iog = int(iog_str)
+        if iog < 0:
+            return False
+        return True
+    except:
+        return False
+
+def valid_subid_format(subid):
+    """
+    Is the subid in the valid format (doesn't check if it exists)
+    Args:
+        subid - str: user submission ID
+    Returns:
+        True is valid, otherwise False
+    """
+    try:
+        return subid.isalpha()
+    except:
+        return False
+
+def valid_gene_name(gene_name):
+    """
+    Is the gene_name valid
+    Args:
+        gene_name - gene name
+    Returns:
+        True is valid, otherwise False
+    """
+    try:
+        return bool(re.match(gene_name_allowed_chars_re, gene_name))
+    except:
+        return False
+
+def create_fasta_file(db, iog_str, subid):
+    """
+    Create the FASTA file of sequences for a user's results
+    Args:
+        db - the shoot database name
+        iog - the og their sequence was placed in
+        subid - the id of their sequence submission
+    Returns:
+        fn - the full path filename for the file to download
+    """
+    return_fn = None
+    try:
+        # create the file on the compute server
+        # copy it to here
+        # return the filename to download
+        db_path = shoot_db_dir + db + "/"
+        filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
+        cmd = """ssh emms@dps008.plants.ox.ac.uk 'cat /tmp/shoot_%s.fa %s/Orthogroup_Sequences/OG%s.fa'""" % (subid, db_path, iog_str)
+        with open(filename, 'w') as outfile:
+            capture = subprocess.Popen(cmd, shell=True, stdout=outfile, stderr=subprocess.PIPE)
+            stderr = [x for x in capture.stderr]
+            try:
+                stderr = [x.decode() for x in stderr]
+            except (UnicodeDecodeError, AttributeError):
+                stderr = [x.encode() for x in stderr]
+        if any("No such file or directory" in l for l in stderr):
+            return return_fn
+        return_fn = filename
+    except Exception as e:
+        print(str(e))
+    return return_fn
