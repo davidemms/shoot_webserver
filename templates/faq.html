@@ -2,7 +2,7 @@
 <html lang = 'en'>
 
 <head>
-
+    <title>SHOOT FAQs</title>
     <meta charset="utf-8">
     <!-- Latest compiled and minified CSS -->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -24,13 +24,298 @@
 </head>
 
 <body>
-<h1>FAQs</h1>
 
-<ol>
-    <li>Can we put SHOOT on our genome resource website?</li>
-    <ul>
-        <li>Yes, all you need is a completed OrthoFinder analysis of your species. Get in touch, for setting it up.</li>
-    </ul>
-</ol>
+
+<div class="container" id = 'faqs'>   
+    <h1>FAQs</h1>
+    <ol>
+        <li>How are the gene trees inferred?</li>
+        <ul>
+            <li>Maximum likelihood tree inference from a multiple sequence alignment is used. 
+The sequences for each database tree are aligned using MAFFT L-INS-i for up to 500 sequences 
+or default MAFFT for larger alignments. Trees are inferred using FastTree with default parameters.
+This is performed by OrthoFinder, which also roots the tree using a rooted gene tree to identify 
+the outgroup genes. A user's query gene is added to the alignment using MAFFT with the '--add' functionality and
+is added to the pre-computed gene tree using IQTREE's '-g' option. The user's tree is rooted
+on the same genes as the database tree.</li>
+        </ul>
+        <li>How do we cite SHOOT?</li>
+        <ul>
+            <li>....</li>
+        </ul>
+        <li>What database does SHOOT use?</li>
+        <ul>
+            <li>SHOOT offers a range of curated databases:</li>
+            <ul>
+                <li><a href="https://www.uniprot.org/help/reference_proteome">UniProt Reference Proteomes 2020</a></li>
+                <p>This database contains 78 species across all domains of life. UniProt says: "Reference proteomes have been selected among all proteomes (manually and algorithmically, according to a number of criteria) to provide broad coverage of the tree of life."</p>
+                <p>You can see the (partially resolved) species tree <a href="/SpeciesTree_UniProt">here</a></p>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Eukaryota</th>
+                        <th>Bacteria</th>
+                        <th>Archaea</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Anopheles gambiae</td>
+                        <td>Aquifex aeolicus</td>
+                        <td>Halobacterium salinarum</td>
+                      </tr>
+                      <tr>
+                        <td>Arabidopsis thaliana</td>
+                        <td>Bacillus subtilis</td>
+                        <td>Korarchaeum cryptofilum</td>
+                      </tr>
+                      <tr>
+                        <td>Batrachochytrium dendrobatidis</td>
+                        <td>Bacteroides thetaiotaomicron</td>
+                        <td>Methanocaldococcus jannaschii</td>
+                      </tr>
+                      <tr>
+                        <td>Bos taurus</td>
+                        <td>Bradyrhizobium diazoefficiens</td>
+                        <td>Methanosarcina acetivorans</td>
+                      </tr>
+                      <tr>
+                        <td>Branchiostoma floridae</td>
+                        <td>Chlamydia trachomatis</td>
+                        <td>Nitrosopumilus maritimus</td>
+                      </tr>
+                      <tr>
+                        <td>Caenorhabditis elegans</td>
+                        <td>Chloroflexus aurantiacus</td>
+                        <td>Saccharolobus solfataricus</td>
+                      </tr>
+                      <tr>
+                        <td>Candida albicans</td>
+                        <td>Deinococcus radiodurans</td>
+                        <td>Thermococcus kodakarensis</td>
+                      </tr>
+                      <tr>
+                        <td>Canis lupus familiaris</td>
+                        <td>Dictyoglomus turgidum</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Chlamydomonas reinhardtii</td>
+                        <td>Escherichia coli</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Ciona intestinalis</td>
+                        <td>Fusobacterium nucleatum</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Cryptococcus neoformans</td>
+                        <td>Geobacter sulfurreducens</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Danio rerio</td>
+                        <td>Gloeobacter violaceus</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Dictyostelium discoideum</td>
+                        <td>Helicobacter pylori</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Drosophila melanogaster</td>
+                        <td>Leptospira interrogans</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Gallus gallus</td>
+                        <td>Mycobacterium tuberculosis</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Giardia intestinalis</td>
+                        <td>Mycoplasma genitalium</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Gorilla gorilla gorilla</td>
+                        <td>Neisseria meningitidis</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Helobdella robusta</td>
+                        <td>Pseudomonas aeruginosa</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Homo sapiens</td>
+                        <td>Rhodopirellula baltica</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Ixodes scapularis</td>
+                        <td>Streptomyces coelicolor</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Leishmania major</td>
+                        <td>Synechocystis sp.</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Lepisosteus oculatus</td>
+                        <td>Thermodesulfovibrio yellowstonii</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Monodelphis domestica</td>
+                        <td>Thermotoga maritima</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Monosiga brevicollis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Mus musculus</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Nematostella vectensis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Neosartorya fumigata</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Neurospora crassa</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Oryza sativa subsp. japonica</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Oryzias latipes</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Pan troglodytes</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Paramecium tetraurelia</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Phaeosphaeria nodorum</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Physcomitrella patens</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Phytophthora ramorum</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Plasmodium falciparum</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Puccinia graminis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Rattus norvegicus</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Saccharomyces cerevisiae</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Schizosaccharomyces pombe</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Sclerotinia sclerotiorum</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Thalassiosira pseudonana</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Tribolium castaneum</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Trichomonas vaginalis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Ustilago maydis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Xenopus tropicalis</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Yarrowia lipolytica</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>Zea mays</td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                    </table>
+            </ul>
+        </ul>
+        <li>Is my tree incorrectly rooted?</li>
+        <ul>
+            <li>This is possible if your gene is an out-group to the species in the database
+you searched against. It's not possible to detect this programmatically so you should consider
+whether the tree should be re-rooted on your query gene. A far better approach is to search against
+a database which has a taxonomic range which covers your species. SHOOT should then be able to root
+the gene tree correctly. It isn't necessary for the database to actually contain your species.</li>
+        </ul>
+        <li>Can we put SHOOT as a gene search tool on our genome resource website?</li>
+        <ul>
+            <li>Yes! Please get in in touch and I'll help you get set up.</li>
+        </ul>
+    </ol>
+</div>
 
 </body>
