@@ -499,6 +499,11 @@ try{
   if (data.data.name == query_gene_name) {
     element.style ("fill", "#2b8cbe", "important");
   }
+  else {
+    var uniprot_id = data.data.name.split("_")[2]
+    var uniprot_url = "https://www.uniprot.org/uniprot/" + uniprot_id
+    element.on("click",function(d,i) { window.open(uniprot_url, "_blank"); });
+  }
 }
 catch (e) {
 }
