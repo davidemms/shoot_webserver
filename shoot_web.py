@@ -45,7 +45,7 @@ def result():
                                     error=err_string))
     atr_samesite = 'Strict'
     resp.set_cookie('iog', iog_str, samesite=atr_samesite)
-    resp.set_cookie('db', "Results_Mar16", samesite=atr_samesite)
+    resp.set_cookie('db', "UniProt_RefProteomes", samesite=atr_samesite)
     resp.set_cookie('subid', submission_id, samesite=atr_samesite)
     resp.set_cookie('name', seq_name, samesite=atr_samesite)
     return resp
