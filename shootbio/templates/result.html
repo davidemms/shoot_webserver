@@ -88,10 +88,10 @@
         <a href="#" id="newick-dropdown" class="nav-link dropdown-toggle" role="button" data-toggle="modal" data-target="#newick_export_modal">Export tree <b class="caret"></b></a>
       </li>
       <li class="nav-item">
-        <a href="download_fasta" class="nav-link" role="button">Export sequences</a>
+        <a href="{{ url_for('download_sequences') }}" class="nav-link" role="button">Export sequences</a>
       </li>
       <li class="nav-item">
-        <a href="/faq" class="nav-link" role="link" target="_blank">FAQ</a>
+        <a href="{{ url_for('faq') }}" class="nav-link" role="link" target="_blank">FAQ</a>
       </li>
     </ul>
 

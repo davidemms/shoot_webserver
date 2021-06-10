@@ -79,12 +79,12 @@
   <a class="navbar-brand" href="/">SHOOT a gene into the Tree of Life</a>
   <ul class="navbar-nav">
     <li class="nav-item">
-      <a href="/faq" class="nav-link" role="link">FAQ</a>
+      <a href="{{ url_for('faq') }}" class="nav-link" role="link">FAQ</a>
     </li>
   </ul>
 </nav>
 
-<form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="/result" onsubmit="return validate_sequence()" method="post" novalidate>
+<form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="{{ url_for('result') }}" onsubmit="return validate_sequence()" method="post" novalidate>
   <div class="container" id = 'submission_form'>
 
 <div class="container" id = 'paste_sequence'>   

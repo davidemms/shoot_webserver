@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='SHOOT',
-    version='0.1.2',
+    version='0.1.3',
     long_description=__doc__,
     packages=['shootbio'],
     include_package_data=True,
