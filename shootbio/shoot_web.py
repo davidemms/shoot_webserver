@@ -1,7 +1,7 @@
 from flask import Flask, url_for, render_template, request, send_file
 from flask.helpers import make_response
 
-import shoot_wrapper
+from . import shoot_wrapper
 
 app = Flask(__name__)
 
@@ -96,7 +96,8 @@ def download_sequences():
                             error=err_string))
             return resp
         else:
-            return send_file(fn, download_name=download_name)
+            # return send_file(fn, download_name=download_name)
+            return send_file(fn, as_attachment=True, attachment_filename=download_name)
     except Exception as e:
         return str(e)
 
