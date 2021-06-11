@@ -88,7 +88,7 @@ def download_sequences():
             err_string = "Invalid gene name"
         else:
             fn = shoot_wrapper.create_fasta_file(db, iog, subid)
-            download_name = "shoot_tree_%s_sequences.fa" % gene_name
+            download_name = "shoot_tree_%s_sequences.txt" % gene_name
         if fn is None:
             resp = make_response(render_template("result.html", 
                             newick_str=default_newick_str, 

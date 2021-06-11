@@ -39,17 +39,25 @@ the outgroup genes. A user's query gene is added to the alignment using MAFFT wi
 is added to the pre-computed gene tree using IQTREE's '-g' option. The user's tree is rooted
 on the same genes as the database tree.</li>
         </ul>
+        <li>How is the tree visualisation done?</li>
+        <ul>
+          <li>All credit is due to phlotree.js developed by Stephen D. Shank, Steven Weaver & Sergei L. Kosakovsky Pond (have I missed anyone?). It was very easy to use and looks great! The github page is here: <a href="https://github.com/veg/phylotree.js">https://github.com/veg/phylotree.js</a> and the citation is: 
+          <ul style="list-style-type:none;">
+            <li>Shank, S., Weaver, S. & Kosakovsky Pond, S. phylotree.js - a JavaScript library for application development and interactive data visualization in phylogenetics. BMC Bioinformatics 19, 276 (2018). <a href="https://doi.org/10.1186/s12859-018-2283-2">https://doi.org/10.1186/s12859-018-2283-2</a></li>
+          </ul>
+          </li>
+        </ul>
         <li>How do we cite SHOOT?</li>
         <ul>
-            <li>....</li>
+            <li>There will be a preprint in the next few weeks.</li>
         </ul>
-        <li>What database does SHOOT use?</li>
+        <li>What databases does SHOOT use?</li>
         <ul>
-            <li>SHOOT offers a range of curated databases:</li>
+            <li>SHOOT will very soon offer a range of curated databases. The motivation for encouraging the use of curated databases over defaulting to the BLAST nr database is that these curated databases should make it easier to picture the evolution of the whole gene family rather than overwhelming the tree with thousands of near-identical hits. The current database is:</li>
             <ul>
-                <li><a href="https://www.uniprot.org/help/reference_proteome">UniProt Reference Proteomes 2020</a></li>
+                <li>SHOOT <a href="https://www.uniprot.org/help/reference_proteome">UniProt Reference Proteomes 2020</a>.</li>
                 <p>This database contains 78 species across all domains of life. UniProt says: "Reference proteomes have been selected among all proteomes (manually and algorithmically, according to a number of criteria) to provide broad coverage of the tree of life."</p>
-                <p>You can see the (partially resolved) species tree <a href="/SpeciesTree_UniProt">here</a></p>
+                <p>You can see the (partially resolved) species tree <a href="{{ url_for('SpeciesTree_UniProt') }}">here</a></p>
                 <table class="table">
                     <thead>
                       <tr>
@@ -303,7 +311,7 @@ on the same genes as the database tree.</li>
                     </table>
             </ul>
         </ul>
-        <li>Is my tree incorrectly rooted?</li>
+        <li>Could my tree need to be manually re-rooted?</li>
         <ul>
             <li>This is possible if your gene is an out-group to the species in the database
 you searched against. It's not possible to detect this programmatically so you should consider
