@@ -219,6 +219,10 @@
            <button type="button" class="btn btn-light btn-sm" id = "sort_original" title = "Restore original order">
               <i class="fa fa-sort" ></i>
           </button>
+          <button type="button" class="btn btn-light btn-sm" id = "collapse_wider_tree" title = "Collapse wider tree">
+             <i class="fa compress-arrows-alt" ></i>
+         </button>
+          
            <button type="button" class="btn btn-light btn-sm" id = "save_image" title = "Save image">
               <i class="fa fa-picture-o" ></i>
           </button>
@@ -404,6 +408,34 @@ $("#sort_original").on ("click", function (e) {
     tree.resortChildren (function (a,b) {
         return a["original_child_order"] - b["original_child_order"];
     });
+});
+
+$("#collapse_wider_tree").on ("click", function (e) {
+    // collapse wider tree
+    console.log(1)
+    console.log(tree)
+    console.log(rendered_tree)
+    tree.getRootNode()
+
+    // pt = 
+    if (query_gene_name.length > 0){
+      query_node = rendered_tree.phylotree.getNodeByName(query_gene_name)
+      n = query_node
+      while (n.parent && n.count().value < 5) {
+        n = n.parent
+      }
+      n_keep = n
+      while (n_keep.parent) {
+        p = n_keep.parent
+        for (const ch of p.children) {
+          if (ch != n_keep && !rendered_tree.phylotree.isLeafNode(ch)) {
+            rendered_tree.collapse_node(ch)
+          }
+        }
+        n_keep = p
+      }
+    }
+    rendered_tree.update();
 });
 
 $("#sort_ascending").on ("click", function (e) {
@@ -888,6 +920,26 @@ $( document ).ready( function () {
     tree = new phylotree.phylotree(initial_string);
     global_tree = tree;
 
+    // // collapse wider tree
+    // if (query_gene_name.length > 0){
+    //   query_node = tree.getNodeByName(query_gene_name)
+    //   n = query_node
+    //   while (n.parent && n.count().value < 5) {
+    //     n = n.parent
+    //   }
+    //   if (n.parent) {
+    //     p = n.parent
+    //     // for (const ch of p.children) {
+    //     //   if (ch != n) {
+    //     //     tree.toggleCollapse(ch.data).update()
+    //     //   }
+    //     // }
+    //   }
+    //   console.log(tree)
+    //   // console.log(n)
+    //   // console.log(n.count())
+    // }
+
     rendered_tree = tree.render({
       container: "#tree_container",
     	'draw-size-bubbles' : false,
@@ -896,6 +948,7 @@ $( document ).ready( function () {
       'edge-styler': edge_colorizer
     });
 
+    // console.log(rendered_tree)
     rendered_tree.selectionLabel (current_selection_name);
 
     rendered_tree.countHandler (count => {
@@ -920,6 +973,7 @@ $( document ).ready( function () {
     // $("#save_selection_name").get(0).addEventListener(selection_menu_element_action,selection_handler_save_selection_name,false);
     // $("#selection_name_dropdown").get(0).addEventListener(selection_menu_element_action,selection_handler_name_dropdown,false);
     update_selection_names();
+
 
    $("#save_image").on ("click", function (e) {
 			datamonkey_save_image('svg', "#tree_container");
