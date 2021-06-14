@@ -199,7 +199,7 @@
 <div class = 'container' id = "main_display">
 
   <div class = 'row'>
-    <div class = 'col-md-8'>
+    <div class = 'col-md-auto'>
       <div class="btn-toolbar" role="toolbar" id='toolbar'>
         <div class="btn-group">
           <button type="button" class="btn btn-light btn-sm" data-direction = 'vertical' data-amount = '1' title = "Expand vertical spacing">
@@ -232,18 +232,6 @@
           </button>
         </div>
 
-
-        <div class="btn-group" role="group">
-          <p>Show more genes. Tree level: </p>
-          <div class="btn-group">
-            <button class="btn btn-light btn-sm" id = "tree_level_up_1">+1</button>
-            <button class="btn btn-light btn-sm" id = "tree_level_up_5">+5</button>
-            <button class="btn btn-light btn-sm" id = "tree_level_all">All</button>
-            <button class="btn btn-light btn-sm" id = "tree_level_down_5">-5</button>
-            <button class="btn btn-light btn-sm" id = "tree_level_down_1">-1</button>
-          </div>
-        </div>
-
         <div class="btn-group" role="group">
           <button class="btn btn-light btn-sm active phylotree-layout-mode" data-mode = "linear">
             Linear
@@ -259,6 +247,25 @@
           <button class="btn btn-light btn-sm phylotree-align-toggler" data-align= "right">
               <i class="fa fa-align-right" ></i>
           </button>
+        </div>
+      </div>
+
+      <div class="btn-group" role="group">
+        <div class="container">
+          <div class="col">
+            <div class="row justify-content-center">
+              Show more genes. Tree level: 
+            </div>
+            <div class="row justify-content-center">
+              <div class="btn-group">
+                <button class="btn btn-light btn-sm" id = "tree_level_up_1" title = "Show 1 extra level in tree">+1</button>
+                <button class="btn btn-light btn-sm" id = "tree_level_up_5" title = "Show 5 extra levels in tree">+5</button>
+                <button class="btn btn-light btn-sm" id = "tree_level_all" title = "Show all levels in tree">All</button>
+                <button class="btn btn-light btn-sm" id = "tree_level_down_5" title = "Show 5 fewer levels in tree">-5</button>
+                <button class="btn btn-light btn-sm" id = "tree_level_down_1" title = "Show 1 fewer level in tree">-1</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -412,6 +419,7 @@ $(".phylotree-align-toggler").on ("click", function (e) {
       $('.phylotree-align-toggler').toggleClass('active');
       rendered_tree.update();
   }
+  // console.log(rendered_tree.options.alignTips)
 });
 
 
@@ -1078,7 +1086,21 @@ function newick_n_genes(tree, n_genes) {
     return [getNewick_from_node(n, tree), n]
 };
 
+global_active_tree = false;
+
 function display_tree(subtree_newick){
+  
+  // get current mode
+  var radial = false
+  var right_align = false
+  if (global_active_tree)
+  {
+    radial = rendered_tree.radial()
+    right_align = rendered_tree.options.alignTips == "right";
+    // console.log(right_align)
+    // console.log(rendered_tree.options.alignTips)
+    
+  }
 
   tree = new phylotree.phylotree(subtree_newick);
     global_tree = tree;
@@ -1090,6 +1112,17 @@ function display_tree(subtree_newick){
       'zoom': false,
       'edge-styler': edge_colorizer
     });
+
+
+  if (radial) {
+    rendered_tree.radial(true)
+  }
+  if (right_align) {
+    rendered_tree.alignTips(true)
+  }
+  if (radial || right_align) {
+    rendered_tree.update()
+  }
 
     // console.log(rendered_tree)
     rendered_tree.selectionLabel (current_selection_name);
@@ -1117,7 +1150,7 @@ function display_tree(subtree_newick){
     // $("#selection_name_dropdown").get(0).addEventListener(selection_menu_element_action,selection_handler_name_dropdown,false);
     update_selection_names();
 
-
+   global_active_tree = true
    $("#save_image").on ("click", function (e) {
 			datamonkey_save_image('svg', "#tree_container");
     });
