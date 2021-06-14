@@ -256,6 +256,12 @@
   </div>
 </div>
 
+<footer class="footer bg-light pull-left">
+  <div class="container">
+    <span class="text-muted">SHOOT: gene search and placement within a phylogenetic database. David Emms & Steven Kelly &copy; 2021</span>
+  </div>
+</footer>
+
 <!--
 ###############################################################################################################################
 -->
@@ -492,17 +498,17 @@ catch (e) {
 
 }
 
-
-
 function node_colorizer_ed_v2 (element, data) {
 try{
-  if (data.data.name == query_gene_name) {
-    element.style ("fill", "#2b8cbe", "important");
-  }
-  else {
-    var uniprot_id = data.data.name.split("_")[2]
-    var uniprot_url = "https://www.uniprot.org/uniprot/" + uniprot_id
-    element.on("click",function(d,i) { window.open(uniprot_url, "_blank"); });
+  if (!data.children) {
+    if (data.data.name == query_gene_name) {
+      element.style ("fill", "#2b8cbe", "important");
+    }
+    else {
+      var uniprot_id = data.data.name.split("_")[2]
+      var uniprot_url = "https://www.uniprot.org/uniprot/" + uniprot_id
+      element.on("click",function(d,i) { window.open(uniprot_url, "_blank"); });
+    }
   }
 }
 catch (e) {
