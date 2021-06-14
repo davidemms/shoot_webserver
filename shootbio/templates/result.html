@@ -27,6 +27,10 @@
           margin-bottom: 25px;
         }
 
+        footer {
+          margin-top: 25px;
+        }
+
         .fa-rotate-45 {
           -webkit-transform: rotate(45deg);
           -moz-transform: rotate(45deg);
@@ -219,15 +223,27 @@
            <button type="button" class="btn btn-light btn-sm" id = "sort_original" title = "Restore original order">
               <i class="fa fa-sort" ></i>
           </button>
-          <button type="button" class="btn btn-light btn-sm" id = "collapse_wider_tree" title = "Collapse wider tree">
+          <!-- <button type="button" class="btn btn-light btn-sm" id = "collapse_wider_tree" title = "Collapse wider tree">
              <i class="fa compress-arrows-alt" ></i>
-         </button>
+         </button> -->
           
            <button type="button" class="btn btn-light btn-sm" id = "save_image" title = "Save image">
               <i class="fa fa-picture-o" ></i>
           </button>
-
         </div>
+
+
+        <div class="btn-group" role="group">
+          <p>Show more genes. Tree level: </p>
+          <div class="btn-group">
+            <button class="btn btn-light btn-sm" id = "tree_level_up_1">+1</button>
+            <button class="btn btn-light btn-sm" id = "tree_level_up_5">+5</button>
+            <button class="btn btn-light btn-sm" id = "tree_level_all">All</button>
+            <button class="btn btn-light btn-sm" id = "tree_level_down_5">-5</button>
+            <button class="btn btn-light btn-sm" id = "tree_level_down_1">-1</button>
+          </div>
+        </div>
+
         <div class="btn-group" role="group">
           <button class="btn btn-light btn-sm active phylotree-layout-mode" data-mode = "linear">
             Linear
@@ -260,11 +276,15 @@
   </div>
 </div>
 
-<footer class="footer bg-light pull-left">
+<footer class="footer fixed-bottom bg-light">
+<!-- <footer class="navbar fixed-bottom bg-light pull-left"> -->
   <div class="container">
+    <!-- <a class="navbar-brand">SHOOT: gene search and placement within a phylogenetic database. David Emms & Steven Kelly &copy; 2021</a> -->
     <span class="text-muted">SHOOT: gene search and placement within a phylogenetic database. David Emms & Steven Kelly &copy; 2021</span>
+    <!-- <p class="text-muted text-left">SHOOT: gene search and placement within a phylogenetic database. David Emms & Steven Kelly &copy; 2021</span> -->
   </div>
 </footer>
+
 
 <!--
 ###############################################################################################################################
@@ -410,33 +430,33 @@ $("#sort_original").on ("click", function (e) {
     });
 });
 
-$("#collapse_wider_tree").on ("click", function (e) {
-    // collapse wider tree
-    console.log(1)
-    console.log(tree)
-    console.log(rendered_tree)
-    tree.getRootNode()
+// $("#collapse_wider_tree").on ("click", function (e) {
+//     // collapse wider tree
+//     console.log(1)
+//     console.log(tree)
+//     console.log(rendered_tree)
+//     tree.getRootNode()
 
-    // pt = 
-    if (query_gene_name.length > 0){
-      query_node = rendered_tree.phylotree.getNodeByName(query_gene_name)
-      n = query_node
-      while (n.parent && n.count().value < 5) {
-        n = n.parent
-      }
-      n_keep = n
-      while (n_keep.parent) {
-        p = n_keep.parent
-        for (const ch of p.children) {
-          if (ch != n_keep && !rendered_tree.phylotree.isLeafNode(ch)) {
-            rendered_tree.collapse_node(ch)
-          }
-        }
-        n_keep = p
-      }
-    }
-    rendered_tree.update();
-});
+//     // pt = 
+//     if (query_gene_name.length > 0){
+//       query_node = rendered_tree.phylotree.getNodeByName(query_gene_name)
+//       n = query_node
+//       while (n.parent && n.count().value < 5) {
+//         n = n.parent
+//       }
+//       n_keep = n
+//       while (n_keep.parent) {
+//         p = n_keep.parent
+//         for (const ch of p.children) {
+//           if (ch != n_keep && !rendered_tree.phylotree.isLeafNode(ch)) {
+//             rendered_tree.collapse_node(ch)
+//           }
+//         }
+//         n_keep = p
+//       }
+//     }
+//     rendered_tree.update();
+// });
 
 $("#sort_ascending").on ("click", function (e) {
     sort_nodes (true);
@@ -508,6 +528,88 @@ function default_tree_settings () {
     tree.branchName (null);
     rendered_tree.radial (false).separation (function (a,b) {return 0;})
 }
+
+function up_n(n){
+  try {
+    var n_level = n_global_level
+    if (!n_level.parent) {
+      return
+    }
+    var i;
+    for (i = 0; i < n; i++){
+      if (n_level.parent){
+        n_level = n_level.parent
+      }
+      else{
+        break
+      }
+    }
+    if (n_level != n_global_level) {
+      subtree_newick = getNewick_from_node(n_level, global_full_tree)
+      display_tree(subtree_newick)
+      n_global_level = n_level
+    }
+  }
+  catch (e) {
+  }
+}
+
+function down_n(n){
+  try {
+    var n_level = n_global_level
+    if (!n_level.children) {
+      return
+    }
+    var i;
+    for (i = 0; i < n; i++){
+      if (n_level.children){
+        for (ch of n_level.children)
+        {
+          if (ch.path_to_target){
+            break
+          }
+        }
+        if (!ch.path_to_target){
+          break
+        }
+        n_level = ch
+      }
+      else{
+        break
+      }
+    }
+    if (!n_level.children){
+      n_level = n_level.parent
+    }
+    if (n_level != n_global_level) {
+      subtree_newick = getNewick_from_node(n_level, global_full_tree)
+      display_tree(subtree_newick)
+      n_global_level = n_level
+    }
+  }
+  catch (e) {
+  }
+}
+
+$("#tree_level_up_1").on ("click", function (e) {
+  up_n(1)
+});
+
+$("#tree_level_up_5").on ("click", function (e) {
+  up_n(5)
+});
+
+$("#tree_level_down_1").on ("click", function (e) {
+  down_n(1)
+});
+
+$("#tree_level_down_5").on ("click", function (e) {
+  down_n(5)
+});
+
+$("#tree_level_all").on ("click", function (e) {
+  up_n(Number.MAX_SAFE_INTEGER)
+});
 
 function node_colorizer (element, data) {
 
@@ -706,10 +808,10 @@ var width  = 800, //$(container_id).width(),
     selection_menu_element_action = "phylotree_menu_element_action";
 
 {% if newick_str %}
-    var initial_string = "{{ newick_str }}";
+    var initial_nwk_string = "{{ newick_str }}";
     var query_gene_name = "{{ query_gene_name }}";
 {% else %}
-    var initial_string = "()myroot";
+    var initial_nwk_string = "()myroot";
     var query_gene_name = "";
 {% endif %}
 var container_id = '#tree_container';
@@ -914,31 +1016,72 @@ var datamonkey_save_image = function(type, container) {
   }
 };
 
+function getNewick_from_node(this_node, tree) {
 
-$( document ).ready( function () {
+annotator = d => '';
 
-    tree = new phylotree.phylotree(initial_string);
+function nodeDisplay(n) {
+  if (!tree.isLeafNode(n)) {
+    element_array.push("(");
+    n.children.forEach(function(d, i) {
+      if (i) {
+        element_array.push(",");
+      }
+      nodeDisplay(d);
+    });
+    element_array.push(")");
+  }
+
+  if(n.data.name != 'root') {
+    element_array.push(n.data.name);
+  }
+  element_array.push(annotator(n));
+
+  let bl = tree.branch_length_accessor(n);
+
+  if (bl !== undefined) {
+    element_array.push(":" + bl);
+  }
+}
+
+let element_array = [];
+annotator = annotator || "";
+nodeDisplay(this_node);
+
+return element_array.join("")+";";
+
+}
+
+function newick_n_genes(tree, n_genes) {
+    // aim for a tree with at least n_genes but no more than 3*n_genes
+    // console.log(tree)
+
+    if (query_gene_name.length > 0){
+      var query_node = tree.getNodeByName(query_gene_name)
+      var n = query_node
+      // set attribute "path_to_target" first
+      n.path_to_target = true
+      while (n.parent) {
+        n = n.parent
+        n.path_to_target = true
+      }
+
+      // now start again at query node and go up to required level
+      n = query_node
+      while (n.parent && n.count().value <= n_genes) {
+        if (n.parent.count().value > 3*n_genes) {
+          break
+        }
+        n = n.parent
+      }
+    }
+    return [getNewick_from_node(n, tree), n]
+};
+
+function display_tree(subtree_newick){
+
+  tree = new phylotree.phylotree(subtree_newick);
     global_tree = tree;
-
-    // // collapse wider tree
-    // if (query_gene_name.length > 0){
-    //   query_node = tree.getNodeByName(query_gene_name)
-    //   n = query_node
-    //   while (n.parent && n.count().value < 5) {
-    //     n = n.parent
-    //   }
-    //   if (n.parent) {
-    //     p = n.parent
-    //     // for (const ch of p.children) {
-    //     //   if (ch != n) {
-    //     //     tree.toggleCollapse(ch.data).update()
-    //     //   }
-    //     // }
-    //   }
-    //   console.log(tree)
-    //   // console.log(n)
-    //   // console.log(n.count())
-    // }
 
     rendered_tree = tree.render({
       container: "#tree_container",
@@ -978,9 +1121,15 @@ $( document ).ready( function () {
    $("#save_image").on ("click", function (e) {
 			datamonkey_save_image('svg', "#tree_container");
     });
+}
 
-
-
+$( document ).ready( function () {
+    var n_show = 100
+    global_full_tree = new phylotree.phylotree(initial_nwk_string);
+    var ret_val = newick_n_genes(global_full_tree, n_show)
+    var subtree_newick = ret_val[0];
+    n_global_level = ret_val[1];
+    display_tree(subtree_newick)
 });
 
 </script>
