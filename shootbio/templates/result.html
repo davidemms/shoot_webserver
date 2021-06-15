@@ -617,7 +617,8 @@ $("#tree_level_all").on ("click", function (e) {
 });
 
 $("#tree_level_reset").on ("click", function (e) {
-
+  display_tree(global_subtree_newick_orig);
+  n_global_level = n_global_level_orig;
 });
 
 
@@ -1166,6 +1167,8 @@ $( document ).ready( function () {
     var subtree_newick = ret_val[0];
     n_global_level = ret_val[1];
     display_tree(subtree_newick)
+    global_subtree_newick_orig = subtree_newick;
+    n_global_level_orig = n_global_level;
 });
 
 </script>
