@@ -1,20 +1,29 @@
 from os import POSIX_FADV_SEQUENTIAL
 import re
 import sys
-import ete3
 import random
 import string
 import subprocess
 
+import ete3
+
 py_path = ":".join(["/lv01/home/emms/anaconda3/lib/python3.6/site-packages"])
 
-shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/shoot/shoot_prototype/shoot.py"
-shoot_db_dir = "/lv01/data/emms/shoot/DATA/"
+shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/shoot.py"
+shoot_db_dir = "/lv01/data/emms/SHOOT/DATA/"
 shoot_opt = "-m -p"
-db_default = "UniProt_RefProteomes"  # note, not forward slash
-available_databases = {db_default, }
+db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
+available_databases = [db_default, "UniProt_RefProteomes"]
 gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
 gene_name_allowed_chars_re = "^[A-Za-z0-9_\\-.]*$"
+
+def get_database(idb):
+    """
+    Get the name of the i-th database
+    Args:
+        idb - the required database (the selector in index.html should be kept in sync)
+    """
+    return available_databases[idb]
 
 def validate_data(text):
     error = None
@@ -82,7 +91,7 @@ def run_shoot_local(name, seq):
     # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
     return newick_str, err_string
 
-def run_shoot_remote(name, seq):
+def run_shoot_remote(name, seq, db_name):
     """
     There are some limits to how long the ssh command can be. Probably safe with 
     1MB ~ 1 million characters
@@ -103,7 +112,7 @@ def run_shoot_remote(name, seq):
     fn_seq = "/tmp/shoot_%s.fa" % submission_id
     fasta_lines = [">" + name,] + get_lines(seq)
     fasta_conts = r"\n".join(fasta_lines) + r"\n"
-    db = shoot_db_dir + db_default + "/"
+    db = shoot_db_dir + db_name + "/"
     cmd = """ssh emms@dps008.plants.ox.ac.uk 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, db, shoot_opt)
     # print(cmd)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -119,7 +128,7 @@ def run_shoot_remote(name, seq):
     rc = capture.returncode
     # print(output)
     # print(rc)
-    # print(err)
+    # print(stderr)
     # print(stdout)
     iog_str = "-1"
     for l in stdout:

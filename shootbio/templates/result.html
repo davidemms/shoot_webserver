@@ -1161,7 +1161,7 @@ function display_tree(subtree_newick){
 }
 
 $( document ).ready( function () {
-    var n_show = 100
+    var n_show = 100;
     global_full_tree = new phylotree.phylotree(initial_nwk_string);
     var ret_val = newick_n_genes(global_full_tree, n_show)
     var subtree_newick = ret_val[0];

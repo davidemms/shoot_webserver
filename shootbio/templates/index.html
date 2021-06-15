@@ -85,65 +85,58 @@
 
 <form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="{{ url_for('result') }}" onsubmit="return validate_sequence()" method="post" novalidate>
   <div class="container" id = 'submission_form'>
-
-<div class="container" id = 'paste_sequence'>   
-<h2>Input protein sequence:</h2>
-<div class="input-group has-validation">
-<div class="container-fluid" id = 'sequence_body'>
-    <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>RHO-201
+    <div class="container" id = 'paste_sequence'>   
+      <h2>Input protein sequence:</h2>
+      <div class="input-group has-validation">
+        <div class="container-fluid" id = 'sequence_body'>
+          <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier; width: 100%; height: 100%' rows = 20 cols = 80 selectionStart = 1 selectionEnd = 1000>>RHO-201
 MNGTEGPNFYVPFSNATGVVRSPFEYPQYYLAEPWQFSMLAAYMFLLIVLGFPINFLTLY
 VTVQHKKLRTPLNYILLNLAVADLFMVLGGFTSTLYTSLHGYFVFGPTGCNLEGFFATLG
 GEIALWSLVVLAIERYVVVCKPMSNFRFGENHAIMGVAFTWVMALACAAPPLAGWSRYIP
 EGLQCSCGIDYYTLKPEVNNESFVIYMFVVHFTIPMIIIFFCYGQLVFTVKEAAAQQQES
 ATTQKAEKEVTRMVIIMVIAFLICWVPYASVAFYIFTHQGSNFGPIFMTIPAFFAKSAAI
 YNPVIYIMMNKQFRNCMLTTICCGKNPLGDDEASATVSKTETSQVAPA</textarea>
-</div>
- 
-<!-- <h2>Database:</h2>
-<div class="container" id = 'database_selection'>
-  <select class="custom-select">
-  <option selected>Database:</option>
-  <option value="1">Quest for Orthologs Reference proteomes 2020</option>
-  <option value="2">Eukaryotes</option>
-  <option value="3">Bacteria</option>
-  <option value="3">Archaea</option>
-  <option value="3">Metazoa</option>
-  <option value="3">Plants</option>
-  <option value="3">Fungi</option>
-</select>
-</div>  database_selection - -->
-</div>
-<span>
-  <div class="alert alert-warning" role="alert" id="invalid_chars_in_seq">  
-    Protein sequence can only contain characters a-z or A-Z.
-  </div>
-  <div class="alert alert-warning" role="alert" id="empty_seq">  
-  Input sequence is empty
-  </div>
-  <div class="alert alert-warning" role="alert" id="multiple_seqs">
-    Multiple sequences, only the first one will be used
-  </div>
-  </span> 
-</div>
+        </div>
+      </div>
+      <span>
+        <div class="alert alert-warning" role="alert" id="invalid_chars_in_seq">  
+          Protein sequence can only contain characters a-z or A-Z.
+        </div>
+        <div class="alert alert-warning" role="alert" id="empty_seq">  
+        Input sequence is empty
+        </div>
+        <div class="alert alert-warning" role="alert" id="multiple_seqs">
+          Multiple sequences, only the first one will be used
+        </div>
+        </span> 
+    </div>
+    <h2>Database:</h2>
+    <div class="container">
+      <select class="form-control custom-select" id = 'database_selection' name = 'i_database'>
+      <option selected value="0">UniProt Reference proteomes (full trees)</option>
+      <option value="1">UniProt Reference proteomes (orthogroup trees)</option>
+    </select>
+    </div>  
+
 
 <!-- <div class="container" id = 'fasta_upload'>
         Or, upload FASTA file:
         <input type="file" id="newick_file"/>
 </div> -->
 
-<button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button'>Submit</button>
-</div>
+    <button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button'>Submit</button>
+  </div>
 </form>
 <div class="container my-5" id = 'about_text'>
-<h2>About SHOOT</h2>
-<p>While BLAST searches against a database of gene sequences, SHOOT allows you to search against a database of gene trees. This has a number of advantages:</p>
-<ul>
-  <li>The gene tree displays the actual relationships between genes.</li>
-  <li>The gene tree allows orthologs (and paralogs) to be identified.</li>
-  <li>The gene tree gives an intuitive view of the evolution of the gene family.</li>
-  <li>SHOOT has carefully curated databases of species so that a gene's history is not obscured by many near-identical hits.</li>
+  <h2>About SHOOT</h2>
+  <p>While BLAST searches against a database of gene sequences, SHOOT allows you to search against a database of gene trees. This has a number of advantages:</p>
+  <ul>
+    <li>The gene tree displays the actual relationships between genes.</li>
+    <li>The gene tree allows orthologs (and paralogs) to be identified.</li>
+    <li>The gene tree gives an intuitive view of the evolution of the gene family.</li>
+    <li>SHOOT has carefully curated databases of species so that a gene's history is not obscured by many near-identical hits.</li>
+  </ul>
 </div>
-</ul>
 
 <footer class="footer fixed-bottom bg-light">
   <div class="container">

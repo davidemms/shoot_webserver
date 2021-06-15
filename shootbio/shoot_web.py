@@ -31,9 +31,20 @@ def result():
     seq_name = ""
     if request.method == 'POST':
         submitted_data = request.form["seq_data"]
-        success, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_data)
-        if success:
-            newick_str, err_string, submission_id, iog_str = shoot_wrapper.run_shoot_remote(seq_name, seq)
+        i_db = request.form["i_database"]
+        success_db = False
+        db_name = "none"
+        if len(i_db) <= 2:
+            try:
+                i_db = int(i_db)
+                success_db = True
+                db_name = shoot_wrapper.get_database(i_db)
+            except:
+                pass
+        if success_db:
+            success_seq, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_data)
+        if success_db and success_seq:
+            newick_str, err_string, submission_id, iog_str = shoot_wrapper.run_shoot_remote(seq_name, seq, db_name)
         else:
             newick_str = "()myroot"
             err_string = "ERROR: Submitted sequence was invalid"
@@ -45,7 +56,7 @@ def result():
                                     error=err_string))
     atr_samesite = 'Strict'
     resp.set_cookie('iog', iog_str, samesite=atr_samesite)
-    resp.set_cookie('db', "UniProt_RefProteomes", samesite=atr_samesite)
+    resp.set_cookie('db', db_name, samesite=atr_samesite)
     resp.set_cookie('subid', submission_id, samesite=atr_samesite)
     resp.set_cookie('name', seq_name, samesite=atr_samesite)
     return resp
