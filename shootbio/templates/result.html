@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang = 'en'>
+<html lang='en'>
 
 <head>
+  <meta charset="utf-8">
 
     <title>SHOOT Results: {{ query_gene_name }}</title>
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Latest compiled and minified CSS -->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -25,6 +25,10 @@
 
         nav {
           margin-bottom: 25px;
+        }
+
+        body {
+            padding-bottom: 60px;
         }
 
         footer {
@@ -261,6 +265,7 @@
                 <button class="btn btn-light btn-sm" id = "tree_level_up_1" title = "Show 1 extra level in tree">+1</button>
                 <button class="btn btn-light btn-sm" id = "tree_level_up_5" title = "Show 5 extra levels in tree">+5</button>
                 <button class="btn btn-light btn-sm" id = "tree_level_all" title = "Show all levels in tree">All</button>
+                <button class="btn btn-light btn-sm" id = "tree_level_reset" title = "Reset tree">Re.</button>
                 <button class="btn btn-light btn-sm" id = "tree_level_down_5" title = "Show 5 fewer levels in tree">-5</button>
                 <button class="btn btn-light btn-sm" id = "tree_level_down_1" title = "Show 1 fewer level in tree">-1</button>
               </div>
@@ -303,17 +308,9 @@ var phylotree_extensions = new Object ();
 
 $('#newick_export_modal').on('show.bs.modal', function (e) {
     $('textarea[id$="nwk_export_spec"]').val(
-        tree.getNewick (
-            function (node) {
-                var tags = [];
-                selection_set.forEach (function (d) { if (node[d]) {tags.push(d)}; });
-                if (tags.length) {
-                    return "{" + tags.join (",") + "}";
-                }
-                return "";
-            }
-        )
+      global_subtree_newick
     );
+
 })
 
 
@@ -618,6 +615,11 @@ $("#tree_level_down_5").on ("click", function (e) {
 $("#tree_level_all").on ("click", function (e) {
   up_n(Number.MAX_SAFE_INTEGER)
 });
+
+$("#tree_level_reset").on ("click", function (e) {
+
+});
+
 
 function node_colorizer (element, data) {
 
@@ -1102,7 +1104,8 @@ function display_tree(subtree_newick){
     
   }
 
-  tree = new phylotree.phylotree(subtree_newick);
+  global_subtree_newick = subtree_newick
+  tree = new phylotree.phylotree(global_subtree_newick);
     global_tree = tree;
 
     rendered_tree = tree.render({
