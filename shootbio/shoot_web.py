@@ -90,13 +90,6 @@ def download_sequences():
         subid = request.cookies.get('subid')
         gene_name = request.cookies.get('name')
         n_level = 5   # sensible default
-        # print(request.form)
-        # print(request.args.get('tl'))
-        # print(request)
-        # print(request.data)
-        # print(request.values)
-        # print(request.json)
-        # print(request.get_json())
         if request.method == 'GET':
             try:
                 n_level_str = request.args.get('tl')
@@ -106,7 +99,6 @@ def download_sequences():
                         n_level = None
             except (KeyError, ValueError):
                 pass
-        # print("Tree level: %s" % str(n_level))
         if db not in shoot_wrapper.available_databases:
             err_string = "Unrecognised SHOOT database"
         elif not shoot_wrapper.valid_iog_format(iog):
@@ -125,7 +117,6 @@ def download_sequences():
                             error=err_string))
             return resp
         else:
-            # return send_file(fn, download_name=download_name)
             return send_file(fn, as_attachment=True, attachment_filename=download_name)
     except Exception as e:
         return str(e)
