@@ -519,6 +519,9 @@ function default_tree_settings () {
 }
 
 function up_n(n){
+  if (!i_global_level) {
+    return
+  }
   try {
     var n_level = n_global_level
     var i_level = i_global_level
@@ -547,6 +550,9 @@ function up_n(n){
 }
 
 function down_n(n){
+  if (!i_global_level) {
+    return
+  }
   try {
     var n_level = n_global_level
     var i_level = i_global_level
@@ -608,6 +614,9 @@ $("#tree_level_all").on ("click", function (e) {
 });
 
 $("#tree_level_reset").on ("click", function (e) {
+  if (!i_global_level) {
+    return
+  }
   n_global_level = n_global_level_orig;
   i_global_level = i_global_level_orig;
   display_tree(global_subtree_newick_orig);
@@ -1059,8 +1068,8 @@ function newick_n_genes(tree, n_genes) {
     // aim for a tree with at least n_genes but no more than 3*n_genes
     // console.log(tree)
 
-    if (query_gene_name.length > 0){
-      var query_node = tree.getNodeByName(query_gene_name)
+    var query_node = tree.getNodeByName(query_gene_name)
+    if (query_node){
       var n = query_node
       // set attribute "path_to_target" first
       n.path_to_target = true
@@ -1079,8 +1088,11 @@ function newick_n_genes(tree, n_genes) {
         n = n.parent
         i_level++
       }
+      return [getNewick_from_node(n, tree), n, i_level]
     }
-    return [getNewick_from_node(n, tree), n, i_level]
+    else {
+      return null
+    }
 };
 
 global_active_tree = false;
@@ -1088,7 +1100,10 @@ global_active_tree = false;
 function display_tree(subtree_newick){
   
   // get current mode
-  document.getElementById("fasta_download_nav").href = "{{ url_for('download_sequences') }}?tl=" + i_global_level.toString()
+  if (i_global_level) {
+    // E.g. Not defined if displaying a species tree, which hasn't got these navigation features
+    document.getElementById("fasta_download_nav").href = "{{ url_for('download_sequences') }}?tl=" + i_global_level.toString()
+  }
   var radial = false
   var right_align = false
   if (global_active_tree)
@@ -1156,16 +1171,28 @@ function display_tree(subtree_newick){
 }
 
 $( document ).ready( function () {
+    i_global_level = null
     var n_show = 100;
     global_full_tree = new phylotree.phylotree(initial_nwk_string);
     var ret_val = newick_n_genes(global_full_tree, n_show)
-    var subtree_newick = ret_val[0];
-    n_global_level = ret_val[1];
-    i_global_level = ret_val[2]
-    display_tree(subtree_newick)
-    global_subtree_newick_orig = subtree_newick;
-    n_global_level_orig = n_global_level;
-    i_global_level_orig = i_global_level
+    if (ret_val) {
+      var subtree_newick = ret_val[0];
+      n_global_level = ret_val[1];
+      i_global_level = ret_val[2]
+      display_tree(subtree_newick)
+      global_subtree_newick_orig = subtree_newick;
+      n_global_level_orig = n_global_level;
+      i_global_level_orig = i_global_level
+    }
+    else {
+      var x = document.getElementById("fasta_download_nav");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+      display_tree(initial_nwk_string)
+    }
 });
 
 </script>
