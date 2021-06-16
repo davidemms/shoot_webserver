@@ -78,7 +78,7 @@ def result_test():
     resp.set_cookie('QUERY_GENE', seq_name, samesite=atr_samesite)
     return resp
 
-@app.route('/download_fasta')
+@app.route('/download_fasta', methods=['GET', ])
 def download_sequences():
     try:
         err_string = "Data is no longer available, please resubmit your search"
@@ -89,6 +89,24 @@ def download_sequences():
         db = request.cookies.get('db')
         subid = request.cookies.get('subid')
         gene_name = request.cookies.get('name')
+        n_level = 5   # sensible default
+        # print(request.form)
+        # print(request.args.get('tl'))
+        # print(request)
+        # print(request.data)
+        # print(request.values)
+        # print(request.json)
+        # print(request.get_json())
+        if request.method == 'GET':
+            try:
+                n_level_str = request.args.get('tl')
+                if n_level_str is not None:
+                    n_level = int(n_level_str)
+                    if n_level < 0:
+                        n_level = None
+            except (KeyError, ValueError):
+                pass
+        # print("Tree level: %s" % str(n_level))
         if db not in shoot_wrapper.available_databases:
             err_string = "Unrecognised SHOOT database"
         elif not shoot_wrapper.valid_iog_format(iog):
@@ -98,7 +116,7 @@ def download_sequences():
         elif not shoot_wrapper.valid_gene_name(gene_name):
             err_string = "Invalid gene name"
         else:
-            fn = shoot_wrapper.create_fasta_file(db, iog, subid)
+            fn = shoot_wrapper.create_fasta_file(db, iog, subid, gene_name, n_level)
             download_name = "shoot_tree_%s_sequences.txt" % gene_name
         if fn is None:
             resp = make_response(render_template("result.html", 

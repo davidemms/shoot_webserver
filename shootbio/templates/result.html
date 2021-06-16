@@ -95,8 +95,18 @@
       <li class="nav-item dropdown">
         <a href="#" id="newick-dropdown" class="nav-link dropdown-toggle" role="button" data-toggle="modal" data-target="#newick_export_modal">Export tree <b class="caret"></b></a>
       </li>
+      <!-- <li class="nav-item">
+        <a href="javascript:DownloadSeqs()" class="nav-link" role="button" id="fasta_download">OLD Export sequences</a>
+      </li> -->
       <li class="nav-item">
-        <a href="{{ url_for('download_sequences') }}" class="nav-link" role="button">Export sequences</a>
+        <a href="{{ url_for('download_sequences') }}" class="nav-link" role="button" id="fasta_download_nav">Export sequences</a>
+      </li>
+      <li class="nav-item">
+        <form name="myform" action="{{ url_for('download_sequences') }}" method="post">
+          <input type="hidden" id="tree_level" name="tree_level" value="20">
+          <!-- <a class="nav-link" role="button" id="fasta_download">Export sequences</a> -->
+          <button>Unsuccessful Export sequences</button>
+        </form>
       </li>
       <li class="nav-item">
         <a href="{{ url_for('faq') }}" class="nav-link" role="link" target="_blank">FAQ</a>
@@ -313,21 +323,59 @@ $('#newick_export_modal').on('show.bs.modal', function (e) {
 
 })
 
+$SCRIPT_ROOT = {{ request.script_root|tojson }};
 
-// $('#sequences_export').on('click', function (e) {
-//   var filename="hello.txt"
-//   var text = "This is the contents"
-//   var element = document.createElement('a');
-//   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-//   element.setAttribute('download', filename);
+function DownloadSeqs() {
+  const Url = $SCRIPT_ROOT + "/download_fasta"
+  // var data = "tree_level=" + n_global_level.toString();
+    // $.post(Url, data, null);
+  var n_level = n_global_level;
+  var i = 0;
+  while (n_level.children){
+    for (ch of n_level.children)
+    {
+      if (ch.path_to_target){
+        break
+      }
+    }
+    if (!ch.path_to_target){
+      // if unexpected failure just request all seqs
+      i = -1
+      break
+    }
+    n_level = ch
+    i++;
+  }
+  console.log("Level is: " + i.toString())
+  const data_dict = {tree_level:i}
+  $.post(Url, data_dict, null);
+}
 
-//   element.style.display = 'none';
-//   document.body.appendChild(element);
-
-//   element.click();
-
-//   document.body.removeChild(element);
-// });
+$('#fasta_download').on("click", function () {
+  const Url = $SCRIPT_ROOT + "/download_fasta"
+  // var data = "tree_level=" + n_global_level.toString();
+    // $.post(Url, data, null);
+  var n_level = n_global_level;
+  var i = 0;
+  while (n_level.children){
+    for (ch of n_level.children)
+    {
+      if (ch.path_to_target){
+        break
+      }
+    }
+    if (!ch.path_to_target){
+      // if unexpected failure just request all seqs
+      i = -1
+      break
+    }
+    n_level = ch
+    i++;
+  }
+  console.log("Level is: " + i.toString())
+  const data_dict = {tree_level:i}
+  $.post(Url, data_dict, null);
+})
 
 $("#newick_file").on ("change", function (e) {
 
@@ -537,6 +585,7 @@ function default_tree_settings () {
 function up_n(n){
   try {
     var n_level = n_global_level
+    var i_level = i_global_level
     if (!n_level.parent) {
       return
     }
@@ -544,6 +593,7 @@ function up_n(n){
     for (i = 0; i < n; i++){
       if (n_level.parent){
         n_level = n_level.parent
+        i_level++
       }
       else{
         break
@@ -551,8 +601,9 @@ function up_n(n){
     }
     if (n_level != n_global_level) {
       subtree_newick = getNewick_from_node(n_level, global_full_tree)
-      display_tree(subtree_newick)
       n_global_level = n_level
+      i_global_level = i_level
+      display_tree(subtree_newick)
     }
   }
   catch (e) {
@@ -562,6 +613,7 @@ function up_n(n){
 function down_n(n){
   try {
     var n_level = n_global_level
+    var i_level = i_global_level
     if (!n_level.children) {
       return
     }
@@ -578,6 +630,7 @@ function down_n(n){
           break
         }
         n_level = ch
+        i_level--
       }
       else{
         break
@@ -585,11 +638,13 @@ function down_n(n){
     }
     if (!n_level.children){
       n_level = n_level.parent
+      i_level++
     }
     if (n_level != n_global_level) {
       subtree_newick = getNewick_from_node(n_level, global_full_tree)
-      display_tree(subtree_newick)
       n_global_level = n_level
+      i_global_level = i_level
+      display_tree(subtree_newick)
     }
   }
   catch (e) {
@@ -617,8 +672,9 @@ $("#tree_level_all").on ("click", function (e) {
 });
 
 $("#tree_level_reset").on ("click", function (e) {
-  display_tree(global_subtree_newick_orig);
   n_global_level = n_global_level_orig;
+  i_global_level = i_global_level_orig;
+  display_tree(global_subtree_newick_orig);
 });
 
 
@@ -1079,14 +1135,16 @@ function newick_n_genes(tree, n_genes) {
 
       // now start again at query node and go up to required level
       n = query_node
+      var i_level = 0
       while (n.parent && n.count().value <= n_genes) {
         if (n.parent.count().value > 3*n_genes) {
           break
         }
         n = n.parent
+        i_level++
       }
     }
-    return [getNewick_from_node(n, tree), n]
+    return [getNewick_from_node(n, tree), n, i_level]
 };
 
 global_active_tree = false;
@@ -1094,6 +1152,8 @@ global_active_tree = false;
 function display_tree(subtree_newick){
   
   // get current mode
+  document.getElementById("tree_level").value = i_global_level
+  document.getElementById("fasta_download_nav").href = "/download_fasta?tl=" + i_global_level.toString()
   var radial = false
   var right_align = false
   if (global_active_tree)
@@ -1166,9 +1226,11 @@ $( document ).ready( function () {
     var ret_val = newick_n_genes(global_full_tree, n_show)
     var subtree_newick = ret_val[0];
     n_global_level = ret_val[1];
+    i_global_level = ret_val[2]
     display_tree(subtree_newick)
     global_subtree_newick_orig = subtree_newick;
     n_global_level_orig = n_global_level;
+    i_global_level_orig = i_global_level
 });
 
 </script>

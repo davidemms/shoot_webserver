@@ -10,6 +10,7 @@ import ete3
 py_path = ":".join(["/lv01/home/emms/anaconda3/lib/python3.6/site-packages"])
 
 shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/shoot.py"
+helper_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/helper_shoot.py"
 shoot_db_dir = "/lv01/data/emms/SHOOT/DATA/"
 shoot_opt = "-m -p"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
@@ -192,12 +193,13 @@ def valid_gene_name(gene_name):
     except:
         return False
 
-def create_fasta_file(db, iog_str, subid):
+def create_fasta_file(db, iog_str, subid, gene_name = None, i_level=None):
     """
     Create the FASTA file of sequences for a user's results
     Args:
         db - the shoot database name
         iog - the og their sequence was placed in
+        i_level - the number of nodes above the query gene to the clade of interest
         subid - the id of their sequence submission
     Returns:
         fn - the full path filename for the file to download
@@ -209,7 +211,15 @@ def create_fasta_file(db, iog_str, subid):
         # return the filename to download
         db_path = shoot_db_dir + db + "/"
         filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
-        cmd = """ssh emms@dps008.plants.ox.ac.uk 'cat /tmp/shoot_%s.fa %s/Orthogroup_Sequences/OG%s.fa'""" % (subid, db_path, iog_str)
+        if gene_name is not None and i_level is not None:
+            fn_og_seqs = "%s/Orthogroup_Sequences/OG%s.fa" % (db_path, iog_str)
+            fn_tree = "/tmp/shoot_%s.fa.grafted.msa.tre" % subid
+            # cmd: write_fasta infasta intree seq level
+            cmd_select_genes = "%s write_fasta %s %s %s %d"  % (helper_exe, fn_og_seqs, fn_tree, gene_name, i_level)
+        else:
+            # just get all the sequences
+            cmd_select_genes = """cat %s/Orthogroup_Sequences/OG%s.fa""" % (db_path, iog_str)
+        cmd = """ssh emms@dps008.plants.ox.ac.uk 'cat /tmp/shoot_%s.fa ; %s '""" % (subid, cmd_select_genes)
         with open(filename, 'w') as outfile:
             capture = subprocess.Popen(cmd, shell=True, stdout=outfile, stderr=subprocess.PIPE)
             stderr = [x for x in capture.stderr]
