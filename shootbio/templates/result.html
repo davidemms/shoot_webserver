@@ -78,12 +78,16 @@
 
         #orthologs_table {
           margin-top: 50px;
+          max-width: 375px;
         }
         #orthologs_table td+td {
           color: #2ca25f; 
         }
         #orthologs_table tr td:first-child { 
           font-weight: bold;
+        }
+        #orthologs table tr td {
+          height: auto;
         }
    </style>
 </head>
@@ -210,7 +214,7 @@
 </div>
 
 
-<div class = 'container' id = "main_display">
+<div class = 'container-fluid' id = "main_display">
 
   <div class = 'row'>
     <div class = 'col-md-auto'>
@@ -291,33 +295,16 @@
     </div -->
   </div>
 
-  <div class="container">
-  <div class = 'col-xl'>
-    <div class = 'row-xl'>
-    <div class = 'row-xl'>
-      <div id = 'tree_container' class = 'tree-widget'></div>
+  <!-- <div class="container-fluid"> -->
+  <div class = 'row'>
+    <div class = 'col-sm-7'>
+        <div id = 'tree_container' class = 'tree-widget'></div>
     </div>
-    <div id = 'orthologs_container'>
-      <table class="table" id="orthologs_table">
-        <!-- <thead>
-          <tr>
-            <th>Eukaryota</th>
-            <th>Bacteria</th>
-            <th>Archaea</th>
-          </tr>
-        </thead> -->
-        <!-- <tbody>
-          <tr>
-            <td>Anopheles gambiae</td>
-            <td>Aquifex aeolicus</td>
-            <td>Halobacterium salinarum</td>
-          </tr>
-        </tbody> -->
-      </table>
+    <div class = 'col-sm-2'></div>
+        <table class="table" id="orthologs_table"></table>
     </div>
   </div>
-  </div>
-</div>
+  <!-- </div> -->
 </div>
 
 <footer class="footer fixed-bottom bg-light">
@@ -1233,7 +1220,7 @@ function build_orthologs_table(){
   sp_list_ologs = [] 
   for (let g of orthologs){
     var t = g.split("_")
-    var sp = t[0] + "_" + t[1]
+    var sp = t[0] + " " + t[1]
     var g_bare = t.slice(2).join("_")
     if (sp in d_ologs){
       d_ologs[sp].push(g_bare)
