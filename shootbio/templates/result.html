@@ -313,51 +313,6 @@ $('#newick_export_modal').on('show.bs.modal', function (e) {
 
 })
 
-$("#newick_file").on ("change", function (e) {
-
-    var files = e.target.files; // FileList object
-
-    if (files.length == 1) {
-      var f = files[0];
-
-      new FileUpload(f, f.file);
-
-      var reader = new FileReader();
-
-      reader.onload = function(e) {
-
-            var res = e.target.result;
-            var warning_div = d3.select ("#main_display").insert ("div", ":first-child");
-            console.log(res);
-
-            tree = new phylotree.phylotree(res);
-            global_tree = tree;
-
-            if (!tree["json"]) {
-                warning_div.attr ("class", "alert alert-danger alert-dismissable")
-                            .html ("<strong>Newick parser error for file " + f.name +": </strong> In file " + res["error"]);
-
-            } else {
-                rendered_tree = tree.render({
-                  container: "#tree_container",
-                  'draw-size-bubbles' : false,
-                  'left-right-spacing' : 'fixed-step',
-                  'node-styler': node_colorizer,
-                  'edge-styler': edge_colorizer
-                });
-
-                $('#newick_modal').modal('hide');
-                $(rendered_tree.container).html(rendered_tree.show())
-            }
-        };
-
-      $('#newick-dropdown').dropdown('toggle');
-      reader.readAsText(f);
-    }
-});
-
-
-
 $("#display_tree").on ("click", function (e) {
     tree.options ({'branches' : 'straight'}, true);
 });
@@ -370,8 +325,6 @@ $ ("[data-direction]").on ("click", function (e) {
     var which_function = $(this).data ("direction") == 'vertical' ? tree.display.spacing_x.bind(tree.display) : tree.display.spacing_y.bind(tree.display);
     which_function (which_function () + (+ $(this).data ("amount"))).update();
 });
-
-
 
 
 $(".phylotree-layout-mode").on ("click", function (e) {
@@ -418,34 +371,6 @@ $("#sort_original").on ("click", function (e) {
         return a["original_child_order"] - b["original_child_order"];
     });
 });
-
-// $("#collapse_wider_tree").on ("click", function (e) {
-//     // collapse wider tree
-//     console.log(1)
-//     console.log(tree)
-//     console.log(rendered_tree)
-//     tree.getRootNode()
-
-//     // pt = 
-//     if (query_gene_name.length > 0){
-//       query_node = rendered_tree.phylotree.getNodeByName(query_gene_name)
-//       n = query_node
-//       while (n.parent && n.count().value < 5) {
-//         n = n.parent
-//       }
-//       n_keep = n
-//       while (n_keep.parent) {
-//         p = n_keep.parent
-//         for (const ch of p.children) {
-//           if (ch != n_keep && !rendered_tree.phylotree.isLeafNode(ch)) {
-//             rendered_tree.collapse_node(ch)
-//           }
-//         }
-//         n_keep = p
-//       }
-//     }
-//     rendered_tree.update();
-// });
 
 $("#sort_ascending").on ("click", function (e) {
     sort_nodes (true);
@@ -652,6 +577,9 @@ try{
       element.style ("fill", "#2b8cbe", "important");
     }
     else {
+      if (orthologs.has(data.data.name))  {
+        element.style ("fill", "#2ca25f", "important");
+      }
       var uniprot_id = data.data.name.split("_")[2]
       var uniprot_url = "https://www.uniprot.org/uniprot/" + uniprot_id
       element.on("click",function(d,i) { window.open(uniprot_url, "_blank"); });
@@ -841,8 +769,6 @@ var example_controls = d3.select ("#controls_form").append ("form");
 //    .attr("height", height);
     
 
-
-
 function selection_handler_name_box (e) {
     var name_box = d3.select (this);
      switch (e.detail[0]) {
@@ -880,7 +806,6 @@ function selection_handler_new (e) {
         default:
             element.classed ("disabled", true);
             break;
-
     }
 }
 
@@ -915,7 +840,6 @@ function selection_handler_delete (e) {
         default:
             element.classed ("disabled", true);
             break;
-
   }
 }
 
@@ -1065,9 +989,110 @@ return element_array.join("")+";";
 
 }
 
+function union(setA, setB) {
+    let _union = new Set(setA)
+    for (let elem of setB) {
+        _union.add(elem)
+    }
+    return _union
+}
+
+function species_from_gene(gene){
+  var x = gene.split("_", 2)
+  return x[0] + "_" + x[1]
+}
+
+function is_overlap(setA_larger, setB_smaller){
+    for (let elem of setB_smaller) {
+        if (setA_larger.has(elem)) {
+            return true
+        }
+    }
+    return false
+}
+
+function get_species_below(node) {
+  // get the **Set** of species below a node
+  // will use a recursive function as I've limited the size of the tree
+  if (node.children){
+    var species_below = new Set()
+    for (let child of node.children) {
+        species_below = union(species_below, get_species_below(child))
+      }
+      return species_below
+    }
+  else {
+    return new Set([species_from_gene(node.data.name), ])
+  }
+}
+
+function get_genes_below(node) {
+  // get the **List** of genes below a node
+  // will use a recursive function as I've limited the size of the tree
+  if (node.children){
+    var genes = []
+    for (let child of node.children) {
+      genes.push(...get_genes_below(child))
+      }
+      return genes
+    }
+  else {
+    var genes = [node.data.name, ]
+    return genes
+  }
+}
+
+function get_orthologs(tree) {
+  try {
+    orthologs = []
+    var query_node = tree.getNodeByName(query_gene_name)
+    var species_below = new Set()
+    if (query_node){
+      // start at the query node, don't record a species for it
+      var n = query_node
+      while (n.parent) {
+        var n_prev = n
+        n = n.parent
+        var new_species_below = new Set()
+        for (let ch of n.children)
+        {
+          if (ch != n_prev){
+            // allow non-binary nodes
+            new_species_below = union(get_species_below(ch), new_species_below)
+            
+          }
+        }
+        console.log(".")
+        console.log(new_species_below)
+        // if sets overlap then duplication node
+        var n1 = species_below.size
+        var n2 = new_species_below.size
+        species_below = union(species_below, new_species_below)
+        if (species_below.size < n1 + n2){
+          // then the species overlap - duplication
+          console.log("paralogs")
+        }
+        else {
+          console.log("orthologs")
+          // speciation => orthologs
+          for (let ch of n.children)
+          {
+            if (ch != n_prev){
+              var gb = get_genes_below(ch)
+              orthologs.push(...gb)
+            }
+          }
+        }
+      }
+    }
+  }
+  catch (e) {
+  }
+  orthologs = new Set(orthologs)
+}
+
 function newick_n_genes(tree, n_genes) {
-    // aim for a tree with at least n_genes but no more than 3*n_genes
-    // console.log(tree)
+    // set the initial zoom level to aim for a tree with at least n_genes but no more than 3*n_genes
 
     var query_node = tree.getNodeByName(query_gene_name)
     if (query_node){
@@ -1097,6 +1122,7 @@ function newick_n_genes(tree, n_genes) {
 };
 
 global_active_tree = false;
+orthologs = new Set()
 
 function display_tree(subtree_newick){
   
@@ -1177,9 +1203,11 @@ $( document ).ready( function () {
     global_full_tree = new phylotree.phylotree(initial_nwk_string);
     var ret_val = newick_n_genes(global_full_tree, n_show)
     if (ret_val) {
+      // then we are displaying a gene tree with an identified target node
       var subtree_newick = ret_val[0];
       n_global_level = ret_val[1];
       i_global_level = ret_val[2]
+      get_orthologs(global_full_tree)
       display_tree(subtree_newick)
       global_subtree_newick_orig = subtree_newick;
       n_global_level_orig = n_global_level;
