@@ -12,7 +12,7 @@ py_path = ":".join(["/lv01/home/emms/anaconda3/lib/python3.6/site-packages"])
 shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/shoot.py"
 helper_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/helper_shoot.py"
 shoot_db_dir = "/lv01/data/emms/SHOOT/DATA/"
-shoot_opt = "-m -p"
+shoot_opt = "-m -u 2000 -l 50 -p"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
 available_databases = [db_default, "UniProt_RefProteomes"]
 gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
@@ -143,7 +143,7 @@ def run_shoot_remote(name, seq, db_name):
         newick_str = newick_str[:-1] # remove semi-colon
     except Exception as e:
         print(str(e))
-        err_string = "No hit was found"
+        err_string = "No homologs were found for the gene in this database"
         newick_str = "()myroot"
     return newick_str, err_string, submission_id, iog_str
 
