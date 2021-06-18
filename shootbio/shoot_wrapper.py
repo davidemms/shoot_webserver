@@ -156,6 +156,17 @@ def valid_iog_format(iog_str):
         True is valid, otherwise False
     """
     try:
+        if "." in iog_str:
+            sp = iog_str.split(".")
+            if len(sp) != 2:
+                return False
+            iog_str = sp[0]
+            ipart_str = sp[1]
+            if not ipart_str.isdigit():
+                return False
+            ipart = int(ipart_str)
+            if ipart < 0:
+                return False
         if len(iog_str) != 7:
             return False
         if not iog_str.isdigit():
@@ -193,12 +204,12 @@ def valid_gene_name(gene_name):
     except:
         return False
 
-def create_fasta_file(db, iog_str, subid, gene_name = None, i_level=None):
+def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
     """
     Create the FASTA file of sequences for a user's results
     Args:
         db - the shoot database name
-        iog - the og their sequence was placed in
+        iog_ipart_str - the og or og.part their sequence was placed in
         i_level - the number of nodes above the query gene to the clade of interest
         subid - the id of their sequence submission
     Returns:
@@ -209,17 +220,22 @@ def create_fasta_file(db, iog_str, subid, gene_name = None, i_level=None):
         # create the file on the compute server
         # copy it to here
         # return the filename to download
+        if "." in iog_ipart_str:
+            iog_str = iog_ipart_str.split(".")[0]
+        else:
+            iog_str = iog_ipart_str
         db_path = shoot_db_dir + db + "/"
         filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
         if gene_name is not None and i_level is not None:
             fn_og_seqs = "%s/Orthogroup_Sequences/OG%s.fa" % (db_path, iog_str)
-            fn_tree = "/tmp/shoot_%s.fa.grafted.msa.tre" % subid
+            fn_tree = "/tmp/shoot_%s.fa.shoot.tre" % subid
             # cmd: write_fasta infasta intree seq level
             cmd_select_genes = "%s write_fasta %s %s %s %d"  % (helper_exe, fn_og_seqs, fn_tree, gene_name, i_level)
         else:
             # just get all the sequences
             cmd_select_genes = """cat %s/Orthogroup_Sequences/OG%s.fa""" % (db_path, iog_str)
         cmd = """ssh emms@dps008.plants.ox.ac.uk 'cat /tmp/shoot_%s.fa ; %s '""" % (subid, cmd_select_genes)
+        # print(cmd)
         with open(filename, 'w') as outfile:
             capture = subprocess.Popen(cmd, shell=True, stdout=outfile, stderr=subprocess.PIPE)
             stderr = [x for x in capture.stderr]
