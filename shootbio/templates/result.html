@@ -647,7 +647,8 @@ catch (e) {
 function node_colorizer_ed_v2 (element, data) {
 try{
   if (!data.children) {
-    if (data.data.name == query_gene_name) {
+    // deal with name truncation in the tree
+    if (data.data.name.substring(0,75) == query_gene_name.substring(0,75)) {
       element.style ("fill", "#2b8cbe", "important");
     }
     else {

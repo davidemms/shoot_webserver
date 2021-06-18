@@ -41,6 +41,7 @@ def validate_data(text):
     else:
         name = "QUERY_GENE"
         seq = text
+    name = name[:75]
     seq = seq.split(">")[0] # only use first sequence
     seq = ''.join(seq.split()) # squeeze to a single string
     # check protein sequence
