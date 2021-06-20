@@ -14,7 +14,7 @@ helper_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_
 shoot_db_dir = "/lv01/data/emms/SHOOT/DATA/"
 shoot_opt = "-m -u 2000 -l 50 -p"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
-available_databases = [db_default, "UniProt_RefProteomes"]
+available_databases = [db_default, "Plants"]
 gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
 gene_name_allowed_chars_re = "^[A-Za-z0-9_\\-.]*$"
 

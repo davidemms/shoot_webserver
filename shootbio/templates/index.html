@@ -64,6 +64,15 @@
           position: fixed;
           left: 5px;
         }
+
+        div#loading {
+          width: 35px;
+          height: 35px;
+          display: none;
+          background: url(/static/shoot_loading.gif) no-repeat;
+          cursor: wait;
+          }
+
    </style>
 </head>
 
@@ -85,6 +94,7 @@
 
 <form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="{{ url_for('result') }}" onsubmit="return validate_sequence()" method="post" novalidate>
   <div class="container" id = 'submission_form'>
+    <div id="loading"></div>
     <div class="container" id = 'paste_sequence'>   
       <h2>Input protein sequence:</h2>
       <div class="input-group has-validation">
@@ -113,8 +123,8 @@ YNPVIYIMMNKQFRNCMLTTICCGKNPLGDDEASATVSKTETSQVAPA</textarea>
     <h2>Database:</h2>
     <div class="container">
       <select class="form-control custom-select" id = 'database_selection' name = 'i_database'>
-      <option value="0">All domains of life: UniProt Reference proteomes</option>
-      <!-- <option selected value="1">UniProt Reference proteomes (orthogroup trees)</option> -->
+      <option selected value="0">All domains of life: UniProt Reference proteomes</option>
+      <option value="1">Plants</option>
     </select>
     </div>  
 
@@ -124,7 +134,7 @@ YNPVIYIMMNKQFRNCMLTTICCGKNPLGDDEASATVSKTETSQVAPA</textarea>
         <input type="file" id="newick_file"/>
 </div> -->
 
-    <button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button'>Submit</button>
+    <button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button' onclick="loading();">Submit</button>
   </div>
 </form>
 <div class="container my-5" id = 'about_text'>
@@ -145,11 +155,17 @@ YNPVIYIMMNKQFRNCMLTTICCGKNPLGDDEASATVSKTETSQVAPA</textarea>
 </footer>
 
 <!--
-################################################################  ###############################################################
+###############################################################################################################################
 -->
+<script type="text/javascript">// <![CDATA[
+  function loading(){
+      $("#loading").show();
+      $("#content").hide();       
+  }
+// ]]></script>
 
 <script>
-
+  
 function validate_sequence(){
     $(".alert").hide()
     var isValid = true;
