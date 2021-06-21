@@ -22,6 +22,7 @@ def SpeciesTree_UniProt():
     return render_template("result.html", 
                     newick_str=newick_str_partially_resolved,
                     query_gene_name="UniProt Reference Proteomes 2020 Partially Resolved Species Tree", 
+                    gene_webpage_url = "",
                     error="")
     
 @app.route('/result', methods=['POST', ])
@@ -29,6 +30,7 @@ def result():
     error = None
     newick_str = default_newick_str
     seq_name = ""
+    db_url = ""
     if request.method == 'POST':
         submitted_data = request.form["seq_data"]
         i_db = request.form["i_database"]
@@ -39,6 +41,7 @@ def result():
                 i_db = int(i_db)
                 success_db = True
                 db_name = shoot_wrapper.get_database(i_db)
+                db_url = shoot_wrapper.get_web_url(i_db)
             except:
                 pass
         if success_db:
@@ -53,6 +56,7 @@ def result():
     resp = make_response(render_template("result.html", 
                                     newick_str=newick_str, 
                                     query_gene_name=seq_name, 
+                                    gene_webpage_url=db_url,
                                     error=err_string))
     atr_samesite = 'Strict'
     resp.set_cookie('iog', iog_str, samesite=atr_samesite)
@@ -61,22 +65,24 @@ def result():
     resp.set_cookie('name', seq_name, samesite=atr_samesite)
     return resp
 
-@app.route('/result2')
-def result_test():
-    newick_str="((a,b),(c,d))"
-    seq_name = "a"
-    err_string = ""
-    iog_str = "-1"
-    resp = make_response(render_template("result.html", 
-                                newick_str=newick_str, 
-                                query_gene_name=seq_name, 
-                                error=err_string))
-    atr_samesite = 'Strict'
-    resp.set_cookie('iog', iog_str, samesite=atr_samesite)
-    resp.set_cookie('db', "Results_Mar16", samesite=atr_samesite)
-    resp.set_cookie('subid', "a"*16, samesite=atr_samesite)
-    resp.set_cookie('QUERY_GENE', seq_name, samesite=atr_samesite)
-    return resp
+# @app.route('/result2')
+# def result_test():
+#     newick_str="((a,b),(c,d))"
+#     seq_name = "a"
+#     err_string = ""
+#     iog_str = "-1"
+#     db_url = ""
+#     resp = make_response(render_template("result.html", 
+#                                 newick_str=newick_str, 
+#                                 query_gene_name=seq_name, 
+#                                     gene_webpage_url=db_url,
+#                                 error=err_string))
+#     atr_samesite = 'Strict'
+#     resp.set_cookie('iog', iog_str, samesite=atr_samesite)
+#     resp.set_cookie('db', "Results_Mar16", samesite=atr_samesite)
+#     resp.set_cookie('subid', "a"*16, samesite=atr_samesite)
+#     resp.set_cookie('QUERY_GENE', seq_name, samesite=atr_samesite)
+#     return resp
 
 @app.route('/download_fasta', methods=['GET', ])
 def download_sequences():
