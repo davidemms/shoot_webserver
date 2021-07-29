@@ -607,7 +607,12 @@ try{
       if (orthologs.has(data.data.name))  {
         element.style ("fill", "#2ca25f", "important");
       }
-      var gene_id = data.data.name.split("_")[2]
+      if (gene_webpage_url.includes("fungi.ensembl.org")) {
+        var gene_id = data.data.name.split("_").slice(2, 4).join("_")
+      }
+      else {
+        var gene_id = data.data.name.split("_")[2]
+      }
       if (gene_webpage_url.length != 0 && gene_id.length != 0) {
         var gene_link = gene_webpage_url + gene_id
         element.on("click",function(d,i) { window.open(gene_link, "_blank"); });
