@@ -1221,9 +1221,6 @@ function display_tree(subtree_newick){
 
    build_orthologs_table();
    global_active_tree = true
-   $("#save_image").on ("click", function (e) {
-			datamonkey_save_image('svg', "#tree_container");
-    });
 }
 
 g_table_built = false
@@ -1297,6 +1294,10 @@ $( document ).ready( function () {
     }
       display_tree(initial_nwk_string)
     }
+    // create the function (only once) for saving the image
+    $("#save_image").on ("click", function (e) {
+        datamonkey_save_image('svg', "#tree_container");
+      });
     // var warning_div = d3.select ("#main_display").insert ("div", ":first-child");
     //             warning_div.attr ("class", "alert alert-danger alert-dismissable")
     //                         .html ("This is where a warning goes");
