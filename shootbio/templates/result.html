@@ -912,11 +912,18 @@ var datamonkey_save_image = function(type, container) {
     var styles = "",
       styleSheets = doc.styleSheets;
 
-    if (styleSheets) {
-      for (var i = 0; i < styleSheets.length; i++) {
-        process_stylesheet(styleSheets[i]);
-      }
-    }
+    // if (styleSheets) {
+    //   for (var i = 0; i < styleSheets.length; i++) {
+    //     console.log(styleSheets[i])
+    //     process_stylesheet(styleSheets[i]);
+    //   }
+    // }
+
+    // Can't access cross-origin stylesheets for security reasons, so only process 
+    // the phylotree.css, that is enough. Otherwise the styling fails.
+    var ss_phylotree = $('link[href="' + "{{ url_for('static', filename='phylotree.css') }}" + '"]')[0].sheet;
+    // console.log(ss_phylotree)
+    process_stylesheet(ss_phylotree)
 
     return styles;
   }
