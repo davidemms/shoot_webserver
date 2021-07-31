@@ -1,23 +1,89 @@
 from os import POSIX_FADV_SEQUENTIAL
 import re
 import sys
+import json
 import random
 import string
 import subprocess
+import os
 
+import numpy as np
 import ete3
 
-py_path = ":".join(["/lv01/home/emms/anaconda3/lib/python3.6/site-packages"])
 
-shoot_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/shoot.py"
-helper_exe = "/lv01/home/emms/anaconda3/bin/python3 /lv01/data/emms/SHOOT/shoot_prototype/helper_shoot.py"
-shoot_db_dir = "/lv01/data/emms/SHOOT/DATA/"
 shoot_opt = "-m -u 2000 -l 50 -p"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
 available_databases = [db_default, "Metazoa", "Plants", "Fungi"]
 web_db_urls = ["https://www.uniprot.org/uniprot/", "https://www.ensembl.org/Gene/Summary?g=", "https://phytozome.jgi.doe.gov/pz/portal.html#!gene?search=1&detail=1&crown&method=0&searchText=transcriptid:", "https://fungi.ensembl.org/Gene/Summary?g="]
 gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
 gene_name_allowed_chars_re = "^[A-Za-z0-9_\\-.]*$"
+
+class server_config(object):
+    def __init__(self):
+        if not self.load_json_configuration():
+            raise RuntimeError("SHOOT server configurations could not be loaded")
+
+    def specific_config(self, i):
+        i = int(i)
+        shoot_db_dir = self.d_shoot[i] + "/DATA/"
+        shoot_exe = self.py_exe[i] +  " " + self.d_shoot[i] + "/shoot_prototype/shoot.py"
+        helper_exe = self.py_exe[i] +  " " + self.d_shoot[i] +  "/shoot_prototype/helper_shoot.py"
+        return i, shoot_db_dir, shoot_exe, helper_exe, self.py_path[i], self.ssh_user_hostname[i]
+
+    def random_config(self):
+        i = np.random.randint(len(self.py_path))
+        return self.specific_config(i)
+
+    def load_json_configuration(self):
+        servers_to_use = []
+        configs = dict()
+        fn_config = os.environ.get('SHOOT_CONFIG')
+        if fn_config is None:
+            print("ERROR: please set the environment variable 'SHOOT_CONFIG' to the location of the config_shoot.json file")
+            return False
+        with open(fn_config, 'r') as infile:
+                try:
+                    d = json.load(infile)
+                except ValueError:
+                    print(("WARNING: Incorrectly formatted configuration file %s. Cannot call shoot on external server." % fn_config))
+                    print("File is not in .json format.")
+                    return False
+        for name, v in d.items():
+            if name == "__comment": continue
+            if " " in name:
+                print(("WARNING: Incorrectly formatted configuration file entry: %s" % name))
+                print(("No space is allowed in name: '%s'" % name))
+                continue
+            if name == "servers":
+                servers_to_use = v
+            else:
+                # this is a server config
+                if any(x not in v for x in ["py_path", "py_exe", "d_shoot", "ssh_user_hostname"]):
+                    print(("WARNING: Incorrectly formatted configuration file entry: %s" % name))
+                    print('Entries must be specified for "ssh_user_hostname", "py_path", "py_exe" and "d_shoot"')
+                    return False
+                configs[name] = v
+        if len(servers_to_use) < 1:
+            print("ERROR: No servers listed to use")
+            return False
+        self.py_path = []
+        self.py_exe = []
+        self.d_shoot = []
+        self.ssh_user_hostname = []
+        for s in servers_to_use:
+            if s not in configs:
+                print("ERROR: No config info found for server '%s'")
+                return False
+            self.py_path.append(configs[s]["py_path"])
+            self.py_exe.append(configs[s]["py_exe"])
+            self.d_shoot.append(configs[s]["d_shoot"])
+            self.ssh_user_hostname.append(configs[s]["ssh_user_hostname"])
+        return True
+try:
+    server
+except:
+    server = server_config()
+
 
 def get_database(idb):
     """
@@ -111,22 +177,24 @@ def run_shoot_remote(name, seq, db_name):
     
     String escaping:
     We need to command to look like this:
-    ssh emms@dps008.plants.ox.ac.uk r'echo ">name\nAFASA\nasfdsf" > file.txt'
+    ssh user@hostname r'echo ">name\nAFASA\nasfdsf" > file.txt'
     The commands below prepare that
     The file contents need to be prepared as a raw string:
     y = r'>name\nAFASA\nasfdsf'
     then the command is constructed like this:
     "string in triple quotes" % y
     """
+    server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.random_config()
     err_string = ""
     name = name[:100]
     seq = seq[:100000]
     submission_id = ''.join(random.choice(string.ascii_letters) for i in range(16))
+    submission_id = str(server_id) + submission_id
     fn_seq = "/tmp/shoot_%s.fa" % submission_id
     fasta_lines = [">" + name,] + get_lines(seq)
     fasta_conts = r"\n".join(fasta_lines) + r"\n"
     db = shoot_db_dir + db_name + "/"
-    cmd = """ssh emms@dps008.plants.ox.ac.uk 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, db, shoot_opt)
+    cmd = """ssh %s 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (ssh_user_hostname, fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, db, shoot_opt)
     # print(cmd)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = [x for x in capture.stdout]
@@ -199,7 +267,11 @@ def valid_subid_format(subid):
         True is valid, otherwise False
     """
     try:
-        return subid.isalpha()
+        try:
+            i = int(subid[0])
+        except:
+            return False
+        return subid[1:].isalpha()
     except:
         return False
 
@@ -236,6 +308,8 @@ def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
             iog_str = iog_ipart_str.split(".")[0]
         else:
             iog_str = iog_ipart_str
+        server_id = subid[0]
+        server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.specific_config(server_id)
         db_path = shoot_db_dir + db + "/"
         filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
         if gene_name is not None and i_level is not None:
@@ -246,7 +320,7 @@ def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
         else:
             # just get all the sequences
             cmd_select_genes = """cat %s/Orthogroup_Sequences/OG%s.fa""" % (db_path, iog_str)
-        cmd = """ssh emms@dps008.plants.ox.ac.uk 'cat /tmp/shoot_%s.fa ; %s '""" % (subid, cmd_select_genes)
+        cmd = """ssh %s 'cat /tmp/shoot_%s.fa ; %s '""" % (ssh_user_hostname, subid, cmd_select_genes)
         # print(cmd)
         with open(filename, 'w') as outfile:
             capture = subprocess.Popen(cmd, shell=True, stdout=outfile, stderr=subprocess.PIPE)

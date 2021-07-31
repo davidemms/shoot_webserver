@@ -47,7 +47,10 @@ def result():
         if success_db:
             success_seq, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_data)
         if success_db and success_seq:
-            newick_str, err_string, submission_id, iog_str = shoot_wrapper.run_shoot_remote(seq_name, seq, db_name)
+            ret_val = shoot_wrapper.run_shoot_remote(seq_name, seq, db_name)
+            success_shoot = False if ret_val is None else True
+        if success_db and success_seq and success_shoot:
+            newick_str, err_string, submission_id, iog_str = ret_val
         else:
             newick_str = "()myroot"
             err_string = "ERROR: Submitted sequence was invalid"
