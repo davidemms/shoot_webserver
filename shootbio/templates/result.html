@@ -130,49 +130,6 @@
       </li>
     </ul>
 
-    <!-- <ul class="nav navbar-nav mx-auto">
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Tag 
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="selection_name_dropdown">
-          <a id="selection_new" class="dropdown-item" href="#">New selection set</a>
-          <a id="selection_delete" class="dropdown-item" href="#">Delete selection set</a>
-          <a id="selection_rename" class="dropdown-item" href="#">Rename selection set</a>
-          <div class="dropdown-divider"></div>
-        </div>
-      </li>
-
-      <li>
-        <form class="form-inline my-2 my-lg-0">
-          <input type="text" id = 'selection_name_box' class="form-control mr-sm-2" value="Foreground" disabled size=40>
-        </form>
-      </li>
-
-      <li id="save_selection_name" style="display:none;" class="my-auto">
-        <a href="#"><button id="cancel_selection_button" class="btn btn-info btn-sm">Cancel</button></a>
-        <a href="#"><button id="save_selection_button" class="btn btn-info btn-sm">Save</button></a>
-      </li>
-
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Selection
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a id="select_all" class="dropdown-item" href="#">Select all</a>
-          <a id="select_all_internal" class="dropdown-item" href="#">Select all internal nodes</a>
-          <a id="select_all_leaves" class="dropdown-item" href="#">Select all leaf nodes</a>
-          <a id="clear_internal" class="dropdown-item" href="#">Clear all internal nodes</a>
-          <a id="clear_leaves" class="dropdown-item" href="#">Clear all leaves</a>
-          <a id="select_none" class="dropdown-item" href="#">Clear selection</a>
-          <div class="dropdown-divider"></div>
-          <a id="mp_label" class="dropdown-item" href="#">Label internal nodes using maximum parsimony</a>
-          <a id="and_label" class="dropdown-item" href="#">Label internal nodes using conjunction (AND)</a>
-          <a id="or_label" class="dropdown-item" href="#">Label internal nodes using disjunction (OR)</a>
-        </div>
-      </li>
-    </ul> -->
-
     <ul class="navbar-nav ml-auto">
       <li>
         <form class="form-inline my-2 my-lg-0">
@@ -226,6 +183,11 @@
   <p class="lead">Query gene: <span class="query_gene">{{ query_gene_name }}</span></p>
 </div>
 
+<div class="alert alert-warning" role="alert" id="outgroup_warning">  
+  Your gene has been placed close to the root of the tree and so could be an outgroup to all other genes in the tree. 
+  If you have not done so, use a SHOOT database with a phylogenetic range that includes your species. Otherwise, consider 
+  whether the tree should be rooted on your query gene.
+</div>
 
 <div class = 'container' id = "main_display">
 
@@ -1096,6 +1058,19 @@ function get_genes_below(node) {
   }
 }
 
+function warn_if_outgroup(tree) {
+  var n = tree.getNodeByName(query_gene_name)
+  var root = tree.getRootNode()
+  var n_up = 3   // this is one beyond the closest it could ever be to the root
+  while ((n.parent) && n_up > 0){
+    n = n.parent
+    n_up--
+    if (n == root) {
+      $("#outgroup_warning").show()
+    }
+  }
+}
+
 function get_orthologs(tree) {
   try {
     orthologs = []
@@ -1289,6 +1264,7 @@ function build_orthologs_table(){
 
 
 $( document ).ready( function () {
+    $("#outgroup_warning").hide()
     i_global_level = null
     var n_show = 100;
     global_full_tree = new phylotree.phylotree(initial_nwk_string);
@@ -1298,6 +1274,7 @@ $( document ).ready( function () {
       var subtree_newick = ret_val[0];
       n_global_level = ret_val[1];
       i_global_level = ret_val[2]
+      warn_if_outgroup(global_full_tree)
       get_orthologs(global_full_tree)
       display_tree(subtree_newick)
       global_subtree_newick_orig = subtree_newick;

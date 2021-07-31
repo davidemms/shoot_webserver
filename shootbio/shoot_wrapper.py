@@ -41,6 +41,9 @@ class server_config(object):
         if fn_config is None:
             print("ERROR: please set the environment variable 'SHOOT_CONFIG' to the location of the config_shoot.json file")
             return False
+        if not os.path.exists(fn_config):
+            print("ERROR: SHOOT_CONFIG file does not exist: %s" % fn_config)
+            return False
         with open(fn_config, 'r') as infile:
                 try:
                     d = json.load(infile)
@@ -79,9 +82,13 @@ class server_config(object):
             self.d_shoot.append(configs[s]["d_shoot"])
             self.ssh_user_hostname.append(configs[s]["ssh_user_hostname"])
         return True
+
 try:
     server
+    q_server_loader = True
 except:
+    q_server_loader = False
+if not q_server_loader:
     server = server_config()
 
 
