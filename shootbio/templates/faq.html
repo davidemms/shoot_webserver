@@ -51,12 +51,13 @@
     <ol>
         <li>How are the gene trees inferred?</li>
         <ul>
-            <li>Maximum likelihood tree inference from a multiple sequence alignment is used. 
-The sequences for each database tree are aligned using MAFFT L-INS-i for up to 500 sequences 
+            <li>Maximum likelihood tree inference from a multiple sequence alignment is used: 
+              OrthoFinder version 3 is used to infer groups containing all homologous genes.
+              The sequences for each database tree are aligned using MAFFT L-INS-i for up to 500 sequences 
 or default MAFFT for larger alignments. Trees are inferred using FastTree with default parameters.
 This is performed by OrthoFinder, which also roots the tree using a rooted gene tree to identify 
-the outgroup genes. A user's query gene is added to the alignment using MAFFT with the '--add' functionality and
-is added to the pre-computed gene tree using IQTREE's '-g' option. The user's tree is rooted
+the outgroup genes. A user's query gene is added to the alignment using MAFFT and
+is added to the pre-computed gene tree using RAxML's EPA. The user's tree is rooted
 on the same genes as the database tree.</li>
         </ul>
         <li>How is the tree visualisation done?</li>
@@ -73,262 +74,15 @@ on the same genes as the database tree.</li>
         </ul>
         <li>What databases does SHOOT use?</li>
         <ul>
-            <li>SHOOT will very soon offer a range of curated databases. The motivation for encouraging the use of curated databases over defaulting to the BLAST nr database is that these curated databases should make it easier to picture the evolution of the whole gene family rather than overwhelming the tree with thousands of near-identical hits. The current database is:</li>
+            <li>SHOOT offers a range of curated databases. The motivation for encouraging the use of curated databases 
+              over defaulting to the BLAST nr database is that these curated databases should make it easier to picture 
+              the evolution of the whole gene family rather than overwhelming the tree with thousands of near-identical 
+              hits. The current databases are:</li>
             <ul>
-                <li>SHOOT <a href="https://www.uniprot.org/help/reference_proteome">UniProt Reference Proteomes 2020</a>.</li>
-                <p>This database contains 78 species across all domains of life. UniProt says: "Reference proteomes have been selected among all proteomes (manually and algorithmically, according to a number of criteria) to provide broad coverage of the tree of life."</p>
-                <p>You can see the (partially resolved) species tree <a href="{{ url_for('SpeciesTree_UniProt') }}">here</a></p>
-                <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Eukaryota</th>
-                        <th>Bacteria</th>
-                        <th>Archaea</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Anopheles gambiae</td>
-                        <td>Aquifex aeolicus</td>
-                        <td>Halobacterium salinarum</td>
-                      </tr>
-                      <tr>
-                        <td>Arabidopsis thaliana</td>
-                        <td>Bacillus subtilis</td>
-                        <td>Korarchaeum cryptofilum</td>
-                      </tr>
-                      <tr>
-                        <td>Batrachochytrium dendrobatidis</td>
-                        <td>Bacteroides thetaiotaomicron</td>
-                        <td>Methanocaldococcus jannaschii</td>
-                      </tr>
-                      <tr>
-                        <td>Bos taurus</td>
-                        <td>Bradyrhizobium diazoefficiens</td>
-                        <td>Methanosarcina acetivorans</td>
-                      </tr>
-                      <tr>
-                        <td>Branchiostoma floridae</td>
-                        <td>Chlamydia trachomatis</td>
-                        <td>Nitrosopumilus maritimus</td>
-                      </tr>
-                      <tr>
-                        <td>Caenorhabditis elegans</td>
-                        <td>Chloroflexus aurantiacus</td>
-                        <td>Saccharolobus solfataricus</td>
-                      </tr>
-                      <tr>
-                        <td>Candida albicans</td>
-                        <td>Deinococcus radiodurans</td>
-                        <td>Thermococcus kodakarensis</td>
-                      </tr>
-                      <tr>
-                        <td>Canis lupus familiaris</td>
-                        <td>Dictyoglomus turgidum</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Chlamydomonas reinhardtii</td>
-                        <td>Escherichia coli</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Ciona intestinalis</td>
-                        <td>Fusobacterium nucleatum</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Cryptococcus neoformans</td>
-                        <td>Geobacter sulfurreducens</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Danio rerio</td>
-                        <td>Gloeobacter violaceus</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Dictyostelium discoideum</td>
-                        <td>Helicobacter pylori</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Drosophila melanogaster</td>
-                        <td>Leptospira interrogans</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Gallus gallus</td>
-                        <td>Mycobacterium tuberculosis</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Giardia intestinalis</td>
-                        <td>Mycoplasma genitalium</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Gorilla gorilla gorilla</td>
-                        <td>Neisseria meningitidis</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Helobdella robusta</td>
-                        <td>Pseudomonas aeruginosa</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Homo sapiens</td>
-                        <td>Rhodopirellula baltica</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Ixodes scapularis</td>
-                        <td>Streptomyces coelicolor</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Leishmania major</td>
-                        <td>Synechocystis sp.</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Lepisosteus oculatus</td>
-                        <td>Thermodesulfovibrio yellowstonii</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Monodelphis domestica</td>
-                        <td>Thermotoga maritima</td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Monosiga brevicollis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Mus musculus</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Nematostella vectensis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Neosartorya fumigata</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Neurospora crassa</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Oryza sativa subsp. japonica</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Oryzias latipes</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Pan troglodytes</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Paramecium tetraurelia</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Phaeosphaeria nodorum</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Physcomitrella patens</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Phytophthora ramorum</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Plasmodium falciparum</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Puccinia graminis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Rattus norvegicus</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Saccharomyces cerevisiae</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Schizosaccharomyces pombe</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Sclerotinia sclerotiorum</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Thalassiosira pseudonana</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Tribolium castaneum</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Trichomonas vaginalis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Ustilago maydis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Xenopus tropicalis</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Yarrowia lipolytica</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>Zea mays</td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                    </table>
+              <li><b>Fungi</b></li>  
+              <li><b>Metazoa</b></li>  
+              <li><b>Plants</b></li>  
+              <li><b>LUCA</b> - A dataset with 78 species from across all domains of life</li>  
             </ul>
         </ul>
         <li>Could my tree need to be manually re-rooted?</li>
@@ -343,6 +97,468 @@ the gene tree correctly. It isn't necessary for the database to actually contain
         <ul>
             <li>Yes! Please get in touch and I'll help you get set up.</li>
         </ul>
+        <li>Database details:</li>
+        <ul>
+          <li><b>Fungi</b> - view the <a href="{{ url_for('SpeciesTree_Fungi') }}">Species Tree</a>
+            <p>27 species across the Fungi kingdom plus 5 outgroup species. The proteomes are from Ensembl: <a href="https://fungi.ensembl.org/">https://fungi.ensembl.org</a>.</p>
+          </li>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><i>Agaricus bisporus</i></td>
+                <td><i>Cryptococcus neoformans</i></td>
+                <td><i>Rhizoctonia solani</i></td>
+              </tr>
+              <tr>
+                <td><i>Amanita muscaria</i></td>
+                <td><i>Encephalitozoon intestinalis</i></td>
+                <td><i>Rhizopus delemar</i></td>
+              </tr>
+              <tr>
+                <td><i>Aspergillus fumigatus</i></td>
+                <td><i>Enterocytozoon bieneusi</i></td>
+                <td><i>Saccharomyces cerevisiae</i></td>
+              </tr>
+              <tr>
+                <td><i>Aspergillus nidulans</i></td>
+                <td><i>Fusarium oxysporum</i></td>
+                <td><i>Schizosaccharomyces pombe</i></td>
+              </tr>
+              <tr>
+                <td><i>Batrachochytrium salamandrivorans</i></td>
+                <td><i>Magnaporthe oryzae</i></td>
+                <td><i>Sclerotinia sclerotiorum</i></td>
+              </tr>
+              <tr>
+                <td><i>Blumeria graminis</i></td>
+                <td><i>Mortierella elongata</i></td>
+                <td><i>Spizellomyces punctatus</i></td>
+              </tr>
+              <tr>
+                <td><i>Botrytis cinerea</i></td>
+                <td><i>Neurospora crassa</i></td>
+                <td><i>Ustilago maydis</i></td>
+              </tr>
+              <tr>
+                <td><i>Candida albicans</i></td>
+                <td><i>Phaeosphaeria nodorum</i></td>
+                <td><i>Yarrowia lipolytica</i></td>
+              </tr>
+              <tr>
+                <td><i>Colletotrichum graminicola</i></td>
+                <td><i>Puccinia graminis</i></td>
+                <td><i>Zymoseptoria tritici</i></td>
+              </tr>
+            </tbody>
+            </table>
+            <p><b>Outgroup species:</b> <i>Caenorhabditis elegans</i>, <i>Homo sapiens</i>, <i>Drosophila melanogaster</i> (Metazoa), <i>Dictyostelium discoideum</i> (Amoeba) & <i>Monosiga brevicollis</i> (Choanoflagellate)</p>
+          <li><b>Metazoa</b> - view the <a href="{{ url_for('SpeciesTree_Metazoa') }}">Species Tree</a>
+            <p>49 species across the Animal kingdom plus 5 outgroup species. The proteomes are from Ensembl: <a href="https://ensembl.org/">https://ensembl.org</a>.</p>
+          </li>
+          <table class="table">
+              <tbody>
+                <tr>
+                  <td><i>Amphimedon queenslandica</i></td>
+                  <td><i>Danio rerio</i></td>
+                  <td><i>Octopus bimaculoides</i></td>
+                </tr>
+                <tr>
+                  <td><i>Anolis carolinensis</i></td>
+                  <td><i>Daphnia magna</i></td>
+                  <td><i>Oncorhynchus mykiss</i></td>
+                </tr>
+                <tr>
+                  <td><i>Anopheles gambiae</i></td>
+                  <td><i>Drosophila melanogaster</i></td>
+                  <td><i>Ornithorhynchus anatinus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Apis mellifera</i></td>
+                  <td><i>Gadus morhua</i></td>
+                  <td><i>Oryzias latipes</i></td>
+                </tr>
+                <tr>
+                  <td><i>Astatotilapia calliptera</i></td>
+                  <td><i>Gallus gallus</i></td>
+                  <td><i>Pan troglodytes</i></td>
+                </tr>
+                <tr>
+                  <td><i>Bombyx mori</i></td>
+                  <td><i>Glossina morsitans</i></td>
+                  <td><i>Petromyzon marinus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Bos taurus</i></td>
+                  <td><i>Helobdella robusta</i></td>
+                  <td><i>Phascolarctos cinereus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Branchiostoma lanceolatum</i></td>
+                  <td><i>Homo sapiens</i></td>
+                  <td><i>Poecilia formosa</i></td>
+                </tr>
+                <tr>
+                  <td><i>Bubo bubo</i></td>
+                  <td><i>Ixodes scapularis</i></td>
+                  <td><i>Rattus norvegicus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Caenorhabditis elegans</i></td>
+                  <td><i>Latimeria chalumnae</i></td>
+                  <td><i>Schistosoma mansoni</i></td>
+                </tr>
+                <tr>
+                  <td><i>Callithrix jacchus</i></td>
+                  <td><i>Lepisosteus oculatus</i></td>
+                  <td><i>Strongylocentrotus purpuratus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Callorhinchus milii</i></td>
+                  <td><i>Leptobrachium leishanense</i></td>
+                  <td><i>Tetraodon nigroviridis</i></td>
+                </tr>
+                <tr>
+                  <td><i>Canis familiaris</i></td>
+                  <td><i>Mnemiopsis leidyi</i></td>
+                  <td><i>Thelohanellus kitauei</i></td>
+                </tr>
+                <tr>
+                  <td><i>Chrysemys picta</i></td>
+                  <td><i>Monodelphis domestica</i></td>
+                  <td><i>Trichinella spiralis</i></td>
+                </tr>
+                <tr>
+                  <td><i>Ciona intestinalis</i></td>
+                  <td><i>Mus musculus</i></td>
+                  <td><i>Trichoplax adhaerens</i></td>
+                </tr>
+                <tr>
+                  <td><i>Corvus moneduloides</i></td>
+                  <td><i>Nematostella vectensis</i></td>
+                  <td><i>Xenopus tropicalis</i></td>
+                </tr>
+                <tr>
+                  <td><i>Crocodylus porosus</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+              </tbody>
+              </table>
+              <p><b>Outgroup species:</b> <i>Monosiga brevicollis</i> (Choanoflagellate), <i>Phaeosphaeria nodorum</i>, <i>Saccharomyces cerevisiae</i>, <i>Schizosaccharomyces pombe</i> (Fungi) & <i>Dictyostelium discoideum</i> (Amoeba)</p>
+          <li><b>Plants</b> - view the <a href="{{ url_for('SpeciesTree_Plants') }}">Species Tree</a>
+            <p>30 species across the Green Plants (Viridiplantae) plus 3 Red Algal outgroup species. The Green Plant proteomes are from Phytozome: <a href="https://phytozome.jgi.doe.gov">https://phytozome.jgi.doe.gov</a>
+            and the Red Algae proteomes are from Ensembl: <a href="https://plants.ensembl.org/">https://plants.ensembl.org</a>.</p>
+          </li>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td><i>Amborella trichopoda</i></i></td>
+                <td><i>Glycine max</i></td>
+                <td><i>Picea glauca</i></td>
+              </tr>
+              <tr>
+                <td><i>Anthoceros punctatus</i></td>
+                <td><i>Gossypium raimondii</i></td>
+                <td><i>Pinus sylvestris</i></td>
+              </tr>
+              <tr>
+                <td><i>Aquilegia coerulea</i></td>
+                <td><i>Hordeum vulgare</i></td>
+                <td><i>Prunus persica</i></td>
+              </tr>
+              <tr>
+                <td><i>Arabidopsis thaliana</i></td>
+                <td><i>Manihot esculenta</i></td>
+                <td><i>Selaginella moellendorffii</i></td>
+              </tr>
+              <tr>
+                <td><i>Azolla filiculoides</i></td>
+                <td><i>Marchantia polymorpha</i></td>
+                <td><i>Setaria italica</i></td>
+              </tr>
+              <tr>
+                <td><i>Brassica oleracea</i></td>
+                <td><i>Micromonas spRCC299</i></td>
+                <td><i>Solanum lycopersicum</i></td>
+              </tr>
+              <tr>
+                <td><i>Chara braunii</i></td>
+                <td><i>Musa acuminata</i></td>
+                <td><i>Spirodela polyrhiza</i></td>
+              </tr>
+              <tr>
+                <td><i>Chlamydomonas reinhardtii</i></td>
+                <td><i>Oryza sativa</i></td>
+                <td><i>Triticum aestivum</i></td>
+              </tr>
+              <tr>
+                <td><i>Eucalyptus grandis</i></td>
+                <td><i>Ostreococcus lucimarinus</i></td>
+                <td><i>Volvox carteri</i></td>
+              </tr>
+              <tr>
+                <td><i>Gingko biloba</i></td>
+                <td><i>Physcomitrella patens</i></td>
+                <td><i>Zea mays</i></td>
+              </tr>
+            </tbody>
+            </table>
+            <p><b>Outgroup species:</b> <i>Chondrus crispus</i>, <i>Cyanidioschyzon merolae</i> & <i>Galdieria sulphuraria</i></p>
+          <li><b>LUCA</b> - view the partially resolved <a href="{{ url_for('SpeciesTree_UniProt') }}">Species Tree</a></li>
+            <p>This database contains 78 species across all domains of life from the <a href="https://www.uniprot.org/help/reference_proteome">UniProt Reference Proteomes 2020</a>. UniProt says: "Reference proteomes have been selected among all proteomes (manually and algorithmically, according to a number of criteria) to provide broad coverage of the tree of life."</p>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Eukaryota</th>
+                  <th>Bacteria</th>
+                  <th>Archaea</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><i>Anopheles gambiae</i></td>
+                  <td><i>Aquifex aeolicus</i></td>
+                  <td><i>Halobacterium salinarum</i></td>
+                </tr>
+                <tr>
+                  <td><i>Arabidopsis thaliana</i></td>
+                  <td><i>Bacillus subtilis</i></td>
+                  <td><i>Korarchaeum cryptofilum</i></td>
+                </tr>
+                <tr>
+                  <td><i>Batrachochytrium dendrobatidis</i></td>
+                  <td><i>Bacteroides thetaiotaomicron</i></td>
+                  <td><i>Methanocaldococcus jannaschii</i></td>
+                </tr>
+                <tr>
+                  <td><i>Bos taurus</i></td>
+                  <td><i>Bradyrhizobium diazoefficiens</i></td>
+                  <td><i>Methanosarcina acetivorans</i></td>
+                </tr>
+                <tr>
+                  <td><i>Branchiostoma floridae</i></td>
+                  <td><i>Chlamydia trachomatis</i></td>
+                  <td><i>Nitrosopumilus maritimus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Caenorhabditis elegans</i></td>
+                  <td><i>Chloroflexus aurantiacus</i></td>
+                  <td><i>Saccharolobus solfataricus</i></td>
+                </tr>
+                <tr>
+                  <td><i>Candida albicans</i></td>
+                  <td><i>Deinococcus radiodurans</i></td>
+                  <td><i>Thermococcus kodakarensis</i></td>
+                </tr>
+                <tr>
+                  <td><i>Canis lupus familiaris</i></td>
+                  <td><i>Dictyoglomus turgidum</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Chlamydomonas reinhardtii</i></td>
+                  <td><i>Escherichia coli</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Ciona intestinalis</i></td>
+                  <td><i>Fusobacterium nucleatum</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Cryptococcus neoformans</i></td>
+                  <td><i>Geobacter sulfurreducens</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Danio rerio</i></td>
+                  <td><i>Gloeobacter violaceus</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Dictyostelium discoideum</i></td>
+                  <td><i>Helicobacter pylori</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Drosophila melanogaster</i></td>
+                  <td><i>Leptospira interrogans</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Gallus gallus</i></td>
+                  <td><i>Mycobacterium tuberculosis</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Giardia intestinalis</i></td>
+                  <td><i>Mycoplasma genitalium</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Gorilla gorilla gorilla</i></td>
+                  <td><i>Neisseria meningitidis</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Helobdella robusta</i></td>
+                  <td><i>Pseudomonas aeruginosa</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Homo sapiens</i></td>
+                  <td><i>Rhodopirellula baltica</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Ixodes scapularis</i></td>
+                  <td><i>Streptomyces coelicolor</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Leishmania major</i></td>
+                  <td><i>Synechocystis sp.</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Lepisosteus oculatus</i></td>
+                  <td><i>Thermodesulfovibrio yellowstonii</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Monodelphis domestica</i></td>
+                  <td><i>Thermotoga maritima</i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Monosiga brevicollis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Mus musculus</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Nematostella vectensis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Neosartorya fumigata</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Neurospora crassa</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Oryza sativa subsp. japonica</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Oryzias latipes</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Pan troglodytes</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Paramecium tetraurelia</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Phaeosphaeria nodorum</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Physcomitrella patens</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Phytophthora ramorum</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Plasmodium falciparum</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Puccinia graminis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Rattus norvegicus</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Saccharomyces cerevisiae</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Schizosaccharomyces pombe</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Sclerotinia sclerotiorum</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Thalassiosira pseudonana</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Tribolium castaneum</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Trichomonas vaginalis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Ustilago maydis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Xenopus tropicalis</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Yarrowia lipolytica</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+                <tr>
+                  <td><i>Zea mays</i></td>
+                  <td><i></i></td>
+                  <td><i></i></td>
+                </tr>
+              </tbody>
+            </table>   
+        </ul>
+      </ul>
     </ol>
 </div>
 
