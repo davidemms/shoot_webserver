@@ -138,19 +138,13 @@ SPEAGLRTPACVLQATEQRDWQSLCHWHGMGWV</textarea>
     <h2>Database:</h2>
     <div class="container">
       <select class="form-control custom-select" id = 'database_selection' name = 'i_database'>
-      <option selected value="0">All domains of life: UniProt Reference proteomes</option>
-      <option value="1">Metazoa</option>
-      <option value="2">Plants</option>
-      <option value="3">Fungi</option>
+        <option selected value="0">All domains of life</option>
+        <option value="1">Metazoa</option>
+        <option value="2">Plants</option>
+        <option value="3">Fungi</option>
+        <option value="4">Bacteria & Archaea</option>
     </select>
     </div>  
-
-
-<!-- <div class="container" id = 'fasta_upload'>
-        Or, upload FASTA file:
-        <input type="file" id="newick_file"/>
-</div> -->
-
     <button class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id = 'submit_button' onclick="loading();">Submit</button>
   </div>
 </form>
@@ -195,6 +189,7 @@ function validate_sequence(){
     isValid = is_sequence_ok(seq);
     if (isValid) {
       $(".alert").hide()
+      $("submit_button").disabled = true
     }
     return isValid;
 };
