@@ -180,7 +180,7 @@
 {% endif %}
 
 
-<div class="alert alert-warning" role="alert" id="outgroup_warning">  
+<div class="alert alert-warning" role="alert" id="outgroup_warning" style="display:none" >  
   Your gene has been placed close to the root of the tree and so could be an outgroup to all other genes in the tree. 
   If you have not done so, use a SHOOT database with a phylogenetic range that includes your species. Otherwise, consider 
   whether the tree should be rooted on your query gene.
@@ -1268,7 +1268,7 @@ function build_orthologs_table(){
 
 
 $( document ).ready( function () {
-    $("#outgroup_warning").hide()
+    // $("#outgroup_warning").hide()
     i_global_level = null
     var n_show = 100;
     global_full_tree = new phylotree.phylotree(initial_nwk_string);
