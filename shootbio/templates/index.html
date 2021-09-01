@@ -24,13 +24,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
 
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootswatch/4.1.1/spacelab/bootstrap.min.css">
 
     <style>
+
+        body {
+          /* Stop footer overlapping content*/
+            padding-bottom: 120px;
+        }
 
         nav {
           margin-bottom: 25px;
@@ -55,8 +61,8 @@
         @media (max-width: 800px) { 
           .container {
             padding: 0px;
-            margin-left: 30px;
-            margin-right: 30px;
+            margin-left: 5px;
+            margin-right: 5px;
           }
         }
 
@@ -88,7 +94,6 @@
           cursor: wait;
           }
 		
-}
 
    </style>
 </head>
@@ -100,17 +105,19 @@
 -->
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-<div class="container">
-<nav class="navbar navbar-dark bg-primary">
-<span class="navbar-brand mb-0 h1">SHOOT: sprout a branch on the tree of life</span>
+
+<header>
+<nav class="navbar navbar-expand-md navbar-dark bg-primary">
+<!-- <nav class="navbar navbar-dark bg-primary"> -->
+<!-- <span class="navbar-brand mb-0 h1"></span>  -->
+<span class="navbar-text mb-0 h5" style="color:white; margin-right:10px">SHOOT: sprout a branch on the tree of life</span>
  <ul class="navbar-nav">
   <li class="nav-item">
    <a href="{{ url_for('faq') }}" class="nav-link" role="link">FAQ</a>
   </li>
  </ul>
 </nav>
-</div>
-
+</header>
 
 <form class="needs-validation position-relative" name="sequence_form" id="submission_form_seq" action="{{ url_for('result') }}" onsubmit="return validate_sequence()" method="post" novalidate>
   <div class="container" id = 'submission_form'>
@@ -119,9 +126,10 @@
     <div class="input-group has-validation nopadding"></div>
     <div class="container nopadding" id = 'sequence_body'></div>
 	<strong>Enter Query Sequence</strong>
-    <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'font-family: Courier' rows = 6 cols = 40 selectionStart = 1 selectionEnd = 1000>>Example_metazoan_sequence
+  <div class ="form-group"> 
+  <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'width:100%; font-family: Courier' rows = 6 cols = 40 selectionStart = 1 selectionEnd = 1000>>Example_metazoan_sequence
 MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRVTYEEAMRGTPLDRPVRVYADGIFDLFHSGHARALMQAKNLFPNTYLIVGVCSDELTHNFKGFTVMNENERYDAVQHCRYVDEVVRNAPWTLTPEFLAEHRIDFVAHDDIPYSSAGSDDVYKHIKEAGMFAPTQRTEGISTSDIITRIVRDYDVYARRNLQRGYTAKELNVSFINEKKYHLQERVDKVKKRVKDVEEKSKEFVQKVEEKSIDLIQKWEEKSREFIGNFLEMFGPEGALVRSCLGRRGKGIWESLAAGTGMVQPISNSLDKASSGRSTKGPRSPEAGLRTPACVLQATEQRDWQSLCHWHGMGWV</textarea>
-        
+  <!-- </div>       -->
       
     <span>
         <div class="alert alert-warning" role="alert" id="invalid_chars_in_seq">  
@@ -150,22 +158,24 @@ MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRV
   </div>
 </form>
 </br> 
-<div class="container" id = 'about_text'>
+<div class="container" id = 'about_text' style="margin-left: 5px; margin-right: 5px;">
    <p><strong>SHOOT is a phylogenetic search engine</strong></br>It searches your query sequence against a database of gene families and provides you with a phylogenetic tree with your query sequence grafted into it. <strong>You can use SHOOT to:</strong></p>
   <ul>
-    <li>Find <strong>similar sequences</strong> in other organisms (just like BLAST).</li>	 	
+  <li>Find <strong>similar sequences</strong> in other organisms (just like BLAST).</li>	 	
 	<li>Produce a <strong>phylogenetic tree</strong> of your gene and its relatives.</li>	
 	<li>Find the <strong>orthologs</strong> of your gene in other species.</li>
-    <li>Map the <strong>evolutionary history</strong> of your gene.</li>	
+  <li>Map the <strong>evolutionary history</strong> of your gene.</li>	
 	<li>Find the <strong>gene family</strong> of your gene.</li>		
   </ul>
 </div>
+</div>
 
 <footer class="footer fixed-bottom bg-light">
-  <div class="container float-left">
-    <span class="text-muted">SHOOT: gene search and placement within a phylogenetic database. David Emms & Steven Kelly &copy; 2021</span>
+  <div class="container">
+    <span class="text-muted">SHOOT: phylogenetic gene search and ortholog inference. David Emms & Steven Kelly &copy; 2021</span>
   </div>
 </footer>
+
 
 <!--
 ###############################################################################################################################

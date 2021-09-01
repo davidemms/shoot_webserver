@@ -88,7 +88,7 @@ def result():
 
 # @app.route('/result2')
 # def result_test():
-#     newick_str="((a,b),(c,d))"
+#     newick_str="(((Blumeria_graminis_BLGH_03519:0.671414,Botrytis_cinerea_Bcin01g09730:0.12327)87:0.115042,(((Colletotrichum_graminicola_GLRG_03987:0.105424,Fusarium_oxysporum_FOXG_00607:0.225705)92:0.0766329,Magnaporthe_oryzae_MGG_04821:0.227089)78:0.0499628,Neurospora_crassa_NCU02739:0.229127)94:0.155455)82:0.0796659,(Zymoseptoria_tritici_Mycgr3G88038:1.03544,(Phaeosphaeria_nodorum_SNOG_12227:0.917734,(Aspergillus_fumigatus_CDV58_08741:0.0782832,Aspergillus_nidulans_ANIA_02113:0.180388)100:0.5926)76:0.191863)82:0.0796659);"
 #     seq_name = "a"
 #     err_string = ""
 #     iog_str = "-1"
