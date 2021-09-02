@@ -309,6 +309,7 @@
    */
 
   function newickParser(nwk_str, options={}) {
+
     const int_or_float = /^-?\d+(\.\d+)?$/;
     let left_delimiter = options.left_delimiter ||  '{',
       right_delimiter = options.right_delimiter ||  '}';
@@ -334,6 +335,7 @@
     }
 
     function finishNodeDefinition() {
+
       let this_node = clade_stack.pop();
 
       this_node["name"] = current_node_name;
@@ -526,7 +528,7 @@
 
     let self = this;
 
-    if (!annotator) annotator = d => d.data.name;
+    if (!annotator) annotator = d => '';
 
     function nodeDisplay(n) {
       if (!isLeafNode(n)) {
@@ -1150,6 +1152,9 @@
   function reroot(node, fraction) {
 
     /** TODO add the option to root in the middle of a branch */
+    if(!(node instanceof d3__namespace.hierarchy)) {
+     throw new Error('node needs to be an instance of a d3.hierarchy node!');
+    }
 
     let nodes = this.nodes.copy();
 
@@ -1171,7 +1176,6 @@
       this.setBranchLength(n => {
         return n.data.__mapped_bl;
       });
-
 
       let remove_me = node,
         current_node = node.parent,
@@ -3449,7 +3453,7 @@
         let managed_to_display = false;
 
         for (let child_id = 0; child_id < a_node.children.length; child_id++) {
-          let child_x = this.tree_layout(a_node.children[child_id]).bind(this);
+          let child_x = this.tree_layout(a_node.children[child_id]);//.bind(this);
 
           if (typeof child_x == "number") {
             displayed_children++;
@@ -4306,7 +4310,7 @@
 
       // If no branch lengths are supplied, set all to 1
       if(!this.hasBranchLengths()) {
-        // console.warn("Phylotree User Warning : NO BRANCH LENGTHS DETECTED, SETTING ALL LENGTHS TO 1");
+        console.warn("Phylotree User Warning : NO BRANCH LENGTHS DETECTED, SETTING ALL LENGTHS TO 1");
         this.setBranchLength(x => 1);
       }
 
