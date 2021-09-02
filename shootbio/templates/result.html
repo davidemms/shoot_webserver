@@ -605,6 +605,11 @@ try{
   if (data.data.name == 'root') {
       element.style ("display", "none");
   }
+  else if (/[A-Za-z]/.test(data.data.name) && data.children) {
+      // highlight taxonomic labels on internal nodes for species trees. Not (numeric)
+      // bootstrap values. Ignore 'e' or 'E' in scientific notation, shouldn't occur.
+        element.style ("fill", "#0342ad", "important");
+  }
 }
 catch (e) {
 }
