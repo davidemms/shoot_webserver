@@ -592,7 +592,7 @@ try{
   }
   else if (data.depth != 0)
   {
-    // show support values
+    // show support values - now done the way recommended here: https://github.com/veg/phylotree.js/issues/397
     // s = data.data.bootstrap_values.toString()
     // element.append("svg:text")
     //       .attr("dx", -6)
@@ -601,6 +601,9 @@ try{
     //       .attr('font-size', '11px')
     //       .attr('fill', '#ccc')
     //       .text(s)
+  }
+  if (data.data.name == 'root') {
+      element.style ("display", "none");
   }
 }
 catch (e) {
@@ -1183,7 +1186,9 @@ function display_tree(subtree_newick){
     	'draw-size-bubbles' : false,
       'node-styler': node_colorizer_ed_v2,
       'zoom': false,
-      'edge-styler': edge_colorizer
+      'edge-styler': edge_colorizer,
+      'internal-names':true,
+      'align-tips':false
     });
 
   if (radial) {
