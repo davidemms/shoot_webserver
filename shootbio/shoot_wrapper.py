@@ -126,6 +126,8 @@ def validate_data(text):
         # print("-" + name + "-")
         # print("-" + seq + "-")
         name = re.sub(gene_name_disallowed_chars_re, '_', name)
+        if name == "":
+            name = "QUERY_GENE"
     else:
         name = "QUERY_GENE"
         seq = text
