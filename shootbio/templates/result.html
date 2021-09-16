@@ -174,19 +174,20 @@
 </div>
 {% endif %}
 
-
 <div class="alert alert-warning" role="alert" id="outgroup_warning" style="display:none" >  
   Your gene has been placed close to the root of the tree and so could be an outgroup to all other genes in the tree. 
   If you have not done so, use a SHOOT database with a phylogenetic range that includes your species. Otherwise, consider 
   whether the tree should be rooted on your query gene.
 </div>
 
-<div class="container">
-  <!-- <p class="lead">Query gene: <span class="query_gene">{{ query_gene_name }}</span></p> -->
-  <h2>Query gene: <span class="query_gene">{{ query_gene_name }}</span></h2>
-</div>
-<div class="container" style="margin-top: 1em">
-  <p class="lead">Tree visualisation powered by <a href="https://doi.org/10.1186/s12859-018-2283-2">phylotree.js</a></span></p>
+<div class="container" id="main_text">
+  <div class="container">
+    <!-- <p class="lead">Query gene: <span class="query_gene">{{ query_gene_name }}</span></p> -->
+    <h2>Query gene: <span class="query_gene">{{ query_gene_name }}</span></h2>
+  </div>
+  <div class="container" style="margin-top: 1em">
+    <p class="lead">Tree visualisation powered by <a href="https://doi.org/10.1186/s12859-018-2283-2">phylotree.js</a></span></p>
+  </div>
 </div>
 
 <div class = 'container' id = "main_display">
@@ -297,9 +298,18 @@
 
 <script>
 
+{% if error %}
+  q_error = true;
+{% else %}
+  q_error = false;
+{% endif %}
+
 var phylotree_extensions = new Object ();
 
 $('#newick_export_modal').on('show.bs.modal', function (e) {
+    if (q_error) {
+      return
+    }
     $('textarea[id$="nwk_export_spec"]').val(
       global_subtree_newick
     );
@@ -1075,6 +1085,9 @@ function get_genes_below(node) {
 }
 
 function warn_if_outgroup(tree) {
+  if (q_error) {
+    return
+  }
   var n = tree.getNodeByName(query_gene_name)
   var root = tree.getRootNode()
   var n_up = 3   // this is one beyond the closest it could ever be to the root
@@ -1282,6 +1295,11 @@ function build_orthologs_table(){
 
 
 $( document ).ready( function () {
+    if (q_error) {
+      $(main_display).hide()
+      $(main_text).hide()
+      return
+    }
     // $("#outgroup_warning").hide()
     i_global_level = null
     var n_show = 100;
@@ -1325,6 +1343,9 @@ $( document ).ready( function () {
     var _warn = console.warn;
 
     console.warn = function() {
+        if (q_error) {
+          return
+        }
         if(arguments[0].includes('Phylotree User Warning')) {
                 var warning_div = d3.select ("#main_display").insert ("div", ":first-child");
                 warning_div.attr ("class", "alert alert-danger alert-dismissable")
