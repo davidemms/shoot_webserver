@@ -54,11 +54,13 @@ def result():
     newick_str = default_newick_str
     seq_name = ""
     db_url = ""
+    db_name = "none"
+    iog_str = "-1"
+    submission_id = "0"*16
     if request.method == 'POST':
-        submitted_data = request.form["seq_data"]
+        submitted_seq_data = request.form["seq_data"]
         i_db = request.form["i_database"]
         success_db = False
-        db_name = "none"
         if len(i_db) <= 2:
             try:
                 i_db = int(i_db)
@@ -68,7 +70,7 @@ def result():
             except:
                 pass
         if success_db:
-            success_seq, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_data)
+            success_seq, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_seq_data)
         if success_db and success_seq:
             ret_val = shoot_wrapper.run_shoot_remote(seq_name, seq, db_name)
             success_shoot = False if ret_val is None else True
@@ -77,8 +79,6 @@ def result():
         else:
             newick_str = "()myroot"
             err_string = "ERROR: Submitted sequence was invalid"
-            submission_id = "0"*16
-            iog_str = "-1"
     resp = make_response(render_template("result.html", 
                                     newick_str=newick_str, 
                                     query_gene_name=seq_name, 

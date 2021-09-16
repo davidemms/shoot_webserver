@@ -115,6 +115,17 @@ def get_web_url(idb):
 
 
 def validate_data(text):
+    """
+    Transform data form formats other than FASTA, e.g. NCBI format. Removes whitespace
+    and numbers from the sequence. Any other characters cause an error.
+    Args:
+        text - text from the sequence data textarea
+    Returns:
+        success - bool
+        name - sequence name
+        seq - amino acid sequence
+        error - error message
+    """
     error = None
     if text.startswith(">"):
         name, seq = text.split("\n", 1)
@@ -131,6 +142,8 @@ def validate_data(text):
     else:
         name = "QUERY_GENE"
         seq = text
+    # clean up sequence formatting, e.g.  NCBI: remove whitespaces and numbers
+    seq = re.sub("[\d\s]", "", seq).upper()
     name = name[:75]
     seq = seq.split(">")[0] # only use first sequence
     seq = ''.join(seq.split()) # squeeze to a single string
@@ -139,7 +152,7 @@ def validate_data(text):
     # eat our own dog food for the valid_gene_name function. It must work here!
     if len(bad_chars) > 0 or not valid_gene_name(name):
         error = "Error, bad characters in sequence data: %s" % bad_chars
-        return False, None, None, error
+        return False, "", None, error
     return True, name, seq, error
    
 

@@ -228,10 +228,10 @@ function process_sequence(seq_str)  {
     else {
       seq = seq.concat(l);
     }
-    name = name.trim();
-    seq = seq.trim();
   }
-
+  name = name.trim();
+  seq = seq.trim();
+  seq = seq.replace(/\s/g, "").replace(/\d/g, "");
   if (seq.len > 10000) {
     alert("Truncated input sequence to maximum length of 10000")
     seq = seq.substring(0, 10000);
@@ -248,8 +248,9 @@ function is_sequence_ok(seq)  {
   }
   for (i = 0; i < len; i++) {
     c = seq.charCodeAt(i);
-    if (!(c > 64 && c < 91) && // upper alpha (A-Z)
-        !(c > 96 && c < 123)) { // lower alpha (a-z)
+    if (!(c > 64 && c < 91)  &&   // upper alpha (A-Z)
+        !(c > 96 && c < 123)) // &&    // lower alpha (a-z)
+    {  
           $("#invalid_chars_in_seq").show()
       return false;
     }
