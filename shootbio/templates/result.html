@@ -1039,6 +1039,15 @@ function union(setA, setB) {
     return _union
 }
 
+function intersection(setA_larger, setB_smaller) {
+    let _intersection = new Set()
+    for (let elem of setB_smaller) {
+        if (setA_larger.has(elem))
+        _intersection.add(elem)
+    }
+    return _intersection
+}
+
 function species_from_gene(gene){
   var x = gene.split("_", 2)
   return x[0] + "_" + x[1]
@@ -1124,18 +1133,23 @@ function get_orthologs(tree) {
         // if sets overlap then duplication node
         var n1 = species_below.size
         var n2 = new_species_below.size
+        var prev_species_below = species_below
         species_below = union(species_below, new_species_below)
-        if (species_below.size < n1 + n2){
-          // then the species overlap - duplication
-          // console.log("paralogs")
-        }
-        else {
+        var o = n1 + n2 - species_below.size
+        var m = (n1 < n2) ? n1 : n2
+          // allow on overlap of 1 if min(species) >= 4 or overlap or 2 if min(species) >= 9
+        if (o == 0 || (m >= 4 && o == 1) || (m >= 9 && o ==2)){
           // console.log("orthologs")
           // speciation => orthologs
           for (let ch of n.children)
           {
             if (ch != n_prev){
               var gb = get_genes_below(ch)
+              // exclude any in the overlap
+              if (o > 0) {
+                var overlap = (n1 < n2) ? intersection(new_species_below, prev_species_below) : intersection(prev_species_below, new_species_below)
+                gb = gb.filter(gene_name => !overlap.has(species_from_gene(gene_name)))
+              }
               orthologs.push(...gb)
             }
           }

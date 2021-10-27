@@ -79,6 +79,9 @@ def result():
         else:
             newick_str = "()myroot"
             err_string = "ERROR: Submitted sequence was invalid"
+    renamed_seq = "SHOOT_" + seq_name
+    if renamed_seq in newick_str:
+        seq_name = renamed_seq
     resp = make_response(render_template("result.html", 
                                     newick_str=newick_str, 
                                     query_gene_name=seq_name, 
