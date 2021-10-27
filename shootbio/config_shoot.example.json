@@ -1,0 +1,19 @@
+{
+    "__comment": "List the servers to use here, unlisted servers won't be used:",
+    "servers": ["servername1", "servername2"],
+
+    "__comment": "Configuration info for a server:",
+    "servername1":{ 
+        "ssh_user_hostname": "emms@servername1.ox.ac.uk",
+        "py_path": "/home/emms/anaconda3/lib/python3.6/site-packages",
+        "py_exe": "/home/emms/anaconda3/bin/python3",
+        "d_shoot": "/data/emms/SHOOT/"
+        },
+
+    "servername2":{ 
+        "ssh_user_hostname": "dops0554@servername2.plants.ox.ac.uk",
+        "py_path": "/home/emms/anaconda3/lib/python3.6/site-packages",
+        "py_exe": "/home/emms/anaconda3/bin/python3",
+        "d_shoot": "/data/emms/SHOOT/"
+        }
+}

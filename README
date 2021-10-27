@@ -1,5 +1,0 @@
-Database requirements:
-- Each species should be descirbed by a binomial with one undescore separating the two words
-- Each gene name should be genus_species_genename.
-    - The gene name can contain multiple underscores
-    - The first word of the gene name should be the ID used to access its page on the relevant genome resource
