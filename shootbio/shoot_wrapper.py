@@ -11,7 +11,7 @@ import numpy as np
 import ete3
 
 
-shoot_opt = "-m -u 2000 -l 50 -p"
+shoot_opt = "-u 2000 -l 50 -p"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
 available_databases = [db_default, "Metazoa", "Plants", "Fungi", "BacteriaArchaea"]
 web_db_urls = ["https://www.uniprot.org/uniprot/", 
@@ -361,3 +361,4 @@ def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
     except Exception as e:
         print(str(e))
     return return_fn
+
