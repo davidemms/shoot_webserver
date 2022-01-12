@@ -125,13 +125,11 @@
     <div class="container nopadding" id = 'paste_sequence'></div>      
     <div class="input-group has-validation nopadding"></div>
     <div class="container nopadding" id = 'sequence_body'></div>
-	<strong>Enter Query Sequence</strong>
-  <div class ="form-group"> 
-  <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'width:100%; font-family: Courier' rows = 6 cols = 40 selectionStart = 1 selectionEnd = 1000>>Example_metazoan_sequence
+    <strong>Enter Query Sequence</strong>
+    <div class ="form-group"> 
+      <textarea class="form-control" spellcheck='false' name = 'seq_data' id = 'seq_spec' autofocus = true placeholder = "" style = 'width:100%; font-family: Courier' rows = 6 cols = 40 selectionStart = 1 selectionEnd = 1000>>Example_metazoan_sequence
 MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRVTYEEAMRGTPLDRPVRVYADGIFDLFHSGHARALMQAKNLFPNTYLIVGVCSDELTHNFKGFTVMNENERYDAVQHCRYVDEVVRNAPWTLTPEFLAEHRIDFVAHDDIPYSSAGSDDVYKHIKEAGMFAPTQRTEGISTSDIITRIVRDYDVYARRNLQRGYTAKELNVSFINEKKYHLQERVDKVKKRVKDVEEKSKEFVQKVEEKSIDLIQKWEEKSREFIGNFLEMFGPEGALVRSCLGRRGKGIWESLAAGTGMVQPISNSLDKASSGRSTKGPRSPEAGLRTPACVLQATEQRDWQSLCHWHGMGWV</textarea>
-  <!-- </div>       -->
-      
-    <span>
+      <span>
         <div class="alert alert-warning" role="alert" id="invalid_chars_in_seq">  
           Protein sequence can only contain characters a-z or A-Z.
         </div>
@@ -141,20 +139,79 @@ MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRV
         <div class="alert alert-warning" role="alert" id="multiple_seqs">
           Multiple sequences, only the first one will be used
         </div>
-    </span> 
-    </br>   
-    <strong>Choose Search Database</strong>
-	</br>
-    <select class="form-control custom-select" style="width:auto;" id = 'database_selection' name = 'i_database'>
-        <option selected value="0">All domains of life</option>
-        <option value="1">Metazoa</option>
-        <option value="2">Plants</option>
-        <option value="3">Fungi</option>
-        <option value="4">Bacteria & Archaea</option>
-    </select>
-   	</br>  
-	</br>
-    <button class="btn btn-primary btn-lg" type="submit" value="Submit" id = 'submit_button' onclick="loading();">SHOOT</button>
+      </span> 
+      </br>   
+      <strong>Choose Search Database</strong>
+      </br>
+      <select class="form-control custom-select" style="width:auto;" id = 'database_selection' name = 'i_database'>
+          <option selected value="0">All domains of life</option>
+          <option value="1">Metazoa</option>
+          <option value="2">Plants</option>
+          <option value="3">Fungi</option>
+          <option value="4">Bacteria & Archaea</option>
+      </select>
+      </br>   
+      </br>
+      <strong>Advanced Options</strong>
+      <!-- p>
+        <button type="button" class="btn btn-primary ms-4" data-toggle="collapse" data-target="#optionsCollapse">Options</button>
+      </p -->
+      <!-- div class="collapse show" id="optionsCollapse"-->
+      <div class="accordion-item" id="accordion_options">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_options" aria-expanded="true" aria-controls="collapse_options">
+            Advanced Options...
+          </button>
+        </h2>
+        <div id="collapse_options" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion_options">
+          <div class="accordion-body">
+            <strong>DIAMOND sensitivity</strong>
+            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
+              <option selected value="0">default</option>
+              <option value="1">ultra-sensitive</option>
+            </select>
+            </br>
+            <strong>DIAMOND database</strong>
+            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
+              <option selected value="0">Profiles of homology groups</option>
+              <option value="1">All sequences</option>
+            </select>
+            </br>
+            <strong>MAFFT options</strong>
+            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
+              <option selected value="0">Accelerated: "--retree 1 --maxiterate 0 --nofft"</option>
+              <option value="1">Defaults</option>
+            </select>
+            </br>
+            <strong>Gene placement in largest trees</strong>
+            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
+              <option selected value="0">DIAMOND (to subtree) + phylogenetic (within subtree)</option>
+              <option value="1">Phylogenetic</option>
+            </select>
+            </br>
+            <div class="form-group">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+              <label class="form-check-label" for="flexCheckChecked">Limit size of returned tree</label>
+            </div>
+            <div class="form-outline">
+              <div class="form-group row">
+                <div class="col-xs-2">
+                  <label class="form-label" for="typeNumber">Max. number of genes</label>
+                </div>
+                <div class="col-xs-2">
+                  <input type="number" id="typeNumber" class="form-control" />
+                </div>
+              </div>
+            </div><!-- form-outline --> 
+          </div><!-- accordion-body -->
+          </br>   
+        </div><!-- accordion-collapse -->
+      </div><!-- accordian-item -->
+      </br>
+      </br>  
+      </br>
+      <button class="btn btn-primary btn-lg" type="submit" value="Submit" id = 'submit_button' onclick="loading();">SHOOT</button>
+    </div>
   </div>
 </form>
 </br> 
@@ -263,8 +320,10 @@ $(".alert").hide()
 </script>
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <!-- script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script -->
 
 
 </body>
