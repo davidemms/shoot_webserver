@@ -240,9 +240,7 @@ def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_maf
     if i_dmnd_profiles != 0:
         shoot_opt += " --profiles_all"
     if i_mafft_opts != 0:
-        print("here")
         shoot_opt += " --mafft_defaults"
-    print(shoot_opt)
     cmd = """ssh %s 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (
         ssh_user_hostname, 
         fasta_conts, 
