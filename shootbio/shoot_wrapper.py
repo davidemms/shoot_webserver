@@ -30,8 +30,8 @@ class server_config(object):
     def specific_config(self, i):
         i = int(i)
         shoot_db_dir = self.d_shoot[i] + "/DATA/"
-        shoot_exe = self.py_exe[i] +  " " + self.d_shoot[i] + "/shoot_prototype/shoot.py"
-        helper_exe = self.py_exe[i] +  " " + self.d_shoot[i] +  "/shoot_prototype/helper_shoot.py"
+        shoot_exe = self.py_exe[i] +  " " + self.d_shoot[i] + "shoot"
+        helper_exe = self.py_exe[i] +  " " + self.d_shoot[i] +  "/shoot/helper_shoot.py"
         return i, shoot_db_dir, shoot_exe, helper_exe, self.py_path[i], self.ssh_user_hostname[i]
 
     def random_config(self):
@@ -196,8 +196,22 @@ def run_shoot_local(name, seq):
     # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
     return newick_str, err_string
 
-def run_shoot_remote(name, seq, db_name):
+def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_mafft_opts=0):
     """
+    Args:
+        name - gene name
+        seq - gene seqeunce
+        db_name - SHOOT DB
+        i_dmnd_sens - 0: default SHOOT sensitivity for DIAMOND search
+        i_dmnd_profiles - 0: default SHOOT profiles database
+        i_mafft_opts - 0: default SHOOT MAFFT options (i.e. accelerated)
+    Returns:
+        newick_str
+        err_string
+        submission_id
+        iog_str
+    
+    Implementation:
     There are some limits to how long the ssh command can be. Probably safe with 
     1MB ~ 1 million characters
     
@@ -220,7 +234,24 @@ def run_shoot_remote(name, seq, db_name):
     fasta_lines = [">" + name,] + get_lines(seq)
     fasta_conts = r"\n".join(fasta_lines) + r"\n"
     db = shoot_db_dir + db_name + "/"
-    cmd = """ssh %s 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (ssh_user_hostname, fasta_conts, fn_seq, py_path, shoot_exe, fn_seq, db, shoot_opt)
+    global shoot_opt
+    if i_dmnd_sens != 0:
+        shoot_opt += " --high_sens"
+    if i_dmnd_profiles != 0:
+        shoot_opt += " --profiles_all"
+    if i_mafft_opts != 0:
+        print("here")
+        shoot_opt += " --mafft_defaults"
+    print(shoot_opt)
+    cmd = """ssh %s 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (
+        ssh_user_hostname, 
+        fasta_conts, 
+        fn_seq, 
+        py_path, 
+        shoot_exe,
+        fn_seq, 
+        db,
+        shoot_opt)
     # print(cmd)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = [x for x in capture.stdout]

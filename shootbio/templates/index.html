@@ -152,7 +152,6 @@ MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRV
       </select>
       </br>   
       </br>
-      <strong>Advanced Options</strong>
       <!-- p>
         <button type="button" class="btn btn-primary ms-4" data-toggle="collapse" data-target="#optionsCollapse">Options</button>
       </p -->
@@ -160,55 +159,66 @@ MIYNSHCNSWFLLDALGEMEPPTSSRLNPRKRRKDGSGPNGATELDGVPPKMSRRSVGLREPAPFSDEVEIDYSKPYIRV
       <div class="accordion-item" id="accordion_options">
         <h2 class="accordion-header" id="headingOne">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_options" aria-expanded="true" aria-controls="collapse_options">
-            Advanced Options...
+            Advanced Options
           </button>
         </h2>
-        <div id="collapse_options" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion_options">
+        <div id="collapse_options" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion_options">
           <div class="accordion-body">
-            <strong>DIAMOND sensitivity</strong>
-            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
-              <option selected value="0">default</option>
-              <option value="1">ultra-sensitive</option>
-            </select>
-            </br>
-            <strong>DIAMOND database</strong>
-            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
-              <option selected value="0">Profiles of homology groups</option>
-              <option value="1">All sequences</option>
-            </select>
-            </br>
-            <strong>MAFFT options</strong>
-            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
-              <option selected value="0">Accelerated: "--retree 1 --maxiterate 0 --nofft"</option>
-              <option value="1">Defaults</option>
-            </select>
-            </br>
-            <strong>Gene placement in largest trees</strong>
-            <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
-              <option selected value="0">DIAMOND (to subtree) + phylogenetic (within subtree)</option>
-              <option value="1">Phylogenetic</option>
-            </select>
-            </br>
             <div class="form-group">
-              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
-              <label class="form-check-label" for="flexCheckChecked">Limit size of returned tree</label>
+              <label for = "diamond_sensitivity">DIAMOND sensitivity 
+                <!--a href="{{ url_for('help') }}">
+                  <span class="glyphicon glyphicon-question-sign"></span>
+                </a-->
+                <a href="{{ url_for('help') }}" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                  </svg>
+                </a>
+              </label>
+              <select class="form-control custom-select" style="width:auto;" id = 'diamond_sensitivity' name = 'i_sensitivity'>
+                <option selected value="0">default</option>
+                <option value="1">ultra-sensitive</option>
+              </select>
             </div>
-            <div class="form-outline">
-              <div class="form-group row">
-                <div class="col-xs-2">
-                  <label class="form-label" for="typeNumber">Max. number of genes</label>
-                </div>
-                <div class="col-xs-2">
-                  <input type="number" id="typeNumber" class="form-control" />
-                </div>
-              </div>
-            </div><!-- form-outline --> 
+            <div class="form-group">
+              <label for = "diamond_profiles">DIAMOND database 
+                <a href="{{ url_for('help') }}" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                  </svg>
+                </a>
+              </label>
+              <select class="form-control custom-select" style="width:auto;" id = 'diamond_profiles' name = 'i_dmnd_profiles'>
+                <option selected value="0">Profiles of homology groups</option>
+                <option value="1">All sequences</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for = "mafft_options">MAFFT options 
+                <a href="{{ url_for('help') }}" target="_blank">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                  </svg>
+                </a>
+              </label>
+              <select class="form-control custom-select" style="width:auto;" id = 'mafft_options' name = 'i_mafft_options'>
+                <option selected value="0">Accelerated: "--retree 1 --maxiterate 0 --nofft"</option>
+                <option value="1">Defaults</option>
+              </select>
+            </div>
+            <!-- div class="form-group">
+              <label for = "mafft_options">Gene placement for largest trees </label>
+              <select class="form-control custom-select" style="width:auto;" id = 'large_tree_placement' name = 'i_large_tree_placement'>
+                <option selected value="0">DIAMOND (to subtree) + phylogenetic (within subtree)</option>
+                <option value="1">Phylogenetic</option>
+              </select>
+            </div -->
           </div><!-- accordion-body -->
-          </br>   
         </div><!-- accordion-collapse -->
       </div><!-- accordian-item -->
-      </br>
-      </br>  
       </br>
       <button class="btn btn-primary btn-lg" type="submit" value="Submit" id = 'submit_button' onclick="loading();">SHOOT</button>
     </div>

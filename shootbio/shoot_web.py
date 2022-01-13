@@ -15,6 +15,10 @@ def index():
 def faq():
     return render_template("faq.html")
 
+@app.route('/help')
+def help():
+    return render_template("help.html")
+
 def return_species_tree_page(newick_str, tree_name):    
     return render_template("result.html", 
             newick_str=newick_str,
@@ -64,15 +68,25 @@ def result():
         if len(i_db) <= 2:
             try:
                 i_db = int(i_db)
-                success_db = True
                 db_name = shoot_wrapper.get_database(i_db)
                 db_url = shoot_wrapper.get_web_url(i_db)
+                i_sensitivity = int(request.form["i_sensitivity"])
+                i_dmnd_profiles = int(request.form["i_dmnd_profiles"])
+                i_mafft_options = int(request.form["i_mafft_options"])
+                success_db = True
             except:
                 pass
         if success_db:
             success_seq, seq_name, seq, err_string = shoot_wrapper.validate_data(submitted_seq_data)
         if success_db and success_seq:
-            ret_val = shoot_wrapper.run_shoot_remote(seq_name, seq, db_name)
+            ret_val = shoot_wrapper.run_shoot_remote(
+                seq_name, 
+                seq, 
+                db_name,
+                i_sensitivity,
+                i_dmnd_profiles,
+                i_mafft_options,
+                )
             success_shoot = False if ret_val is None else True
         if success_db and success_seq and success_shoot:
             newick_str, err_string, submission_id, iog_str = ret_val
