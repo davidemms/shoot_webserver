@@ -1,4 +1,3 @@
-from os import POSIX_FADV_SEQUENTIAL
 import re
 import sys
 import json
@@ -196,7 +195,7 @@ def run_shoot_local(name, seq):
     # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
     return newick_str, err_string
 
-def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_mafft_opts=0):
+def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_mafft_opts=0):
     """
     Args:
         name - gene name
@@ -224,12 +223,10 @@ def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_maf
     then the command is constructed like this:
     "string in triple quotes" % y
     """
-    server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.random_config()
+    server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.specific_config(server_id)
     err_string = ""
     name = name[:100]
     seq = seq[:100000]
-    submission_id = ''.join(random.choice(string.ascii_letters) for i in range(16))
-    submission_id = str(server_id) + submission_id
     fn_seq = "/tmp/shoot_%s.fa" % submission_id
     fasta_lines = [">" + name,] + get_lines(seq)
     fasta_conts = r"\n".join(fasta_lines) + r"\n"
@@ -251,6 +248,55 @@ def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_maf
         db,
         shoot_opt)
     # print(cmd)
+    with open(fn_seq + ".started", 'w') as outfile:
+        pass
+    try:
+        capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = [x for x in capture.stdout]
+        stderr = [x for x in capture.stderr]
+        try:
+            stdout = [x.decode() for x in stdout]
+            stderr = [x.decode() for x in stderr]
+        except (UnicodeDecodeError, AttributeError):
+            stdout = [x.encode() for x in stdout]
+            stderr = [x.encode() for x in stderr]
+        capture.communicate()
+        rc = capture.returncode
+    finally:
+        with open(fn_seq + ".finished", 'w') as outfile:
+            pass
+    # print(output)
+    # print(rc)
+    # print(stderr)
+    # print(stdout)
+    iog_str = "-1"
+    for l in stdout:
+        if l.startswith("WARNING: "):
+            err_string = l.rstrip()
+        if l.startswith("Gene assigned to: "):
+            iog_str = l.split(": ", 1)[1].rstrip()[2:]   # clip off the 'OG'
+    try:
+        newick_str = stdout[-1].rstrip()
+        t = ete3.Tree(newick_str)
+        newick_str = newick_str[:-1] # remove semi-colon
+    except Exception as e:
+        print(str(e))
+        err_string = "No homologs were found for the gene in this database"
+        newick_str = "()myroot"
+    return newick_str, err_string, submission_id, iog_str
+
+
+def is_complete(submission_id):
+    fn = "/tmp/shoot_%s.fa.finished" % submission_id
+    return os.path.exists(fn)
+
+
+def get_result(submission_id):
+    
+    fn = "/tmp/shoot_%s.fa.shoot.tre" % submission_id
+    server_id = int(submission_id[0])
+    _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
+    cmd = """ssh %s 'cat %s'""" % (ssh_user_hostname, fn)
     capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = [x for x in capture.stdout]
     stderr = [x for x in capture.stderr]
@@ -261,11 +307,8 @@ def run_shoot_remote(name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_maf
         stdout = [x.encode() for x in stdout]
         stderr = [x.encode() for x in stderr]
     capture.communicate()
-    rc = capture.returncode
-    # print(output)
-    # print(rc)
-    # print(stderr)
-    # print(stdout)
+    rc = capture.returncode    
+    err_string = ""
     iog_str = "-1"
     for l in stdout:
         if l.startswith("WARNING: "):
