@@ -52,7 +52,7 @@
     </style>
 </head>
 
-<body onload="window.location.href = '{{ url_for('result') }}'">
+<body onload="window.location.href = '{{ results_url }}'">
 
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
@@ -60,8 +60,7 @@
   <a class="navbar-brand" href="/">SHOOT.bio: sprout a branch on the tree of life</a>
 </nav>
 <a>SHOOT.bio is growing your tree. This page will refresh automaticaly in 10 seconds.</a>
-<!--a href="{{ url_for('result') }}">Results page</a-->
-
+<p><a>Results will be available for 7 days here: </a><a href="{{ results_url }}">{{ results_url }}</a></p>
 <div class="container" id = 'faqs'>   
        <img src="{{ url_for('static', filename='shoot_loading.gif') }}" class="img-rounded" alt="Waiting...">
 </div>

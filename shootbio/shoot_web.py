@@ -3,7 +3,7 @@ import random
 import string
 import time
 
-from flask import Flask, url_for, render_template, request, send_file
+from flask import Flask, url_for, render_template, request, send_file, redirect
 from flask.helpers import make_response
 
 from . import shoot_wrapper
@@ -66,7 +66,7 @@ def SpeciesTree_Prokaryotes():
     return return_species_tree_page(newick_str_partially_resolved, "Bacteria & Archaea")
  
  
-@app.route('/result', methods=['POST', ])
+@app.route('/result', methods=['POST', 'GET'])
 def calculating():
     # if method == 'POST':
     error = None
@@ -106,7 +106,8 @@ def calculating():
         server_id, _, _, _, _, _ = shoot_wrapper.server.random_config()
         submission_id = ''.join(random.choice(string.ascii_letters) for i in range(16))
         submission_id = str(server_id) + submission_id
-        resp = make_response(render_template("waiting.html"))
+        results_url = url_for("result", result_id="%s" % submission_id, _external=True)
+        resp = make_response(render_template("waiting.html", results_url=results_url))
         atr_samesite = 'Strict'
         resp.set_cookie('subid', submission_id, samesite=atr_samesite)
         resp.set_cookie('name', seq_name, samesite=atr_samesite)
@@ -125,18 +126,18 @@ def calculating():
                                         query_gene_name="", 
                                         gene_webpage_url="",
                                         error=err_string))
-        
     
     return resp
 
 
-@app.route('/result', methods=['GET', ])
-def result():
-    submission_id = request.cookies.get('subid')
+@app.route('/result/<result_id>', methods=['GET', ])
+def result(result_id):
+    submission_id = result_id
     seq_name = request.cookies.get('name')
     i_db = int(request.cookies.get('idb'))
     db_url = shoot_wrapper.get_web_url(i_db)
     db_name = shoot_wrapper.get_database(i_db)
+    results_url = url_for("result", result_id=submission_id, _external=True)
     for _ in range(10):
         status = shoot_wrapper.is_complete(submission_id)
         if status:
@@ -144,16 +145,10 @@ def result():
         time.sleep(1)
     if status is False:
         atr_samesite = 'Strict'
-        resp = make_response(render_template("waiting.html"))
+        resp = make_response(render_template("waiting.html", results_url=results_url))
         resp.set_cookie('subid', submission_id, samesite=atr_samesite)
     elif status == True:
         ret_val = shoot_wrapper.get_result(submission_id)
-        newick_str, err_string, submission_id, iog_str = ret_val
-        resp = make_response(render_template("result.html", 
-                                        newick_str=newick_str, 
-                                        query_gene_name=seq_name, 
-                                        gene_webpage_url=db_url,
-                                        error=err_string))
         success_shoot = False if ret_val is None else True
         if success_shoot:
             newick_str, err_string, submission_id, iog_str = ret_val
@@ -163,11 +158,13 @@ def result():
         renamed_seq = "SHOOT_" + seq_name
         if renamed_seq in newick_str:
             seq_name = renamed_seq
+        
         resp = make_response(render_template("result.html", 
                                         newick_str=newick_str, 
                                         query_gene_name=seq_name, 
                                         gene_webpage_url=db_url,
-                                        error=err_string))
+                                        error=err_string,
+                                        results_url=results_url))
         atr_samesite = 'Strict'
         resp.set_cookie('iog', iog_str, samesite=atr_samesite)
         resp.set_cookie('db', db_name, samesite=atr_samesite)
