@@ -109,10 +109,10 @@ def calculating():
         results_url = url_for("result", result_id="%s" % submission_id, _external=True)
         resp = make_response(render_template("waiting.html", results_url=results_url))
         atr_samesite = 'Strict'
-        resp.set_cookie('subid', submission_id, samesite=atr_samesite)
-        resp.set_cookie('name', seq_name, samesite=atr_samesite)
-        resp.set_cookie('idb', str(i_db), samesite=atr_samesite)
-        resp.set_cookie('db', db_name, samesite=atr_samesite)
+        path = "/result/%s" % submission_id
+        resp.set_cookie('subid', submission_id, path=path, samesite=atr_samesite)
+        resp.set_cookie('name', seq_name, path=path, samesite=atr_samesite)
+        resp.set_cookie('idb', str(i_db), path=path, samesite=atr_samesite)
         
         form = request.form
         thread = threading.Thread(target=run_shoot, args=(server_id, submission_id, seq_name, seq, db_name, 
@@ -135,8 +135,6 @@ def result(result_id):
     submission_id = result_id
     seq_name = request.cookies.get('name')
     i_db = int(request.cookies.get('idb'))
-    db_url = shoot_wrapper.get_web_url(i_db)
-    db_name = shoot_wrapper.get_database(i_db)
     results_url = url_for("result", result_id=submission_id, _external=True)
     for _ in range(10):
         status = shoot_wrapper.is_complete(submission_id)
@@ -147,6 +145,8 @@ def result(result_id):
         atr_samesite = 'Strict'
         resp = make_response(render_template("waiting.html", results_url=results_url))
         resp.set_cookie('subid', submission_id, samesite=atr_samesite)
+        resp.set_cookie('name', seq_name, samesite=atr_samesite)
+        resp.set_cookie('idb', str(i_db), samesite=atr_samesite)
     elif status == True:
         ret_val = shoot_wrapper.get_result(submission_id)
         success_shoot = False if ret_val is None else True
@@ -155,6 +155,7 @@ def result(result_id):
         else:
             newick_str = "()myroot"
             err_string = "ERROR: Submitted sequence was invalid"
+            iog_str = "-1"
         renamed_seq = "SHOOT_" + seq_name
         if renamed_seq in newick_str:
             seq_name = renamed_seq
@@ -162,14 +163,15 @@ def result(result_id):
         resp = make_response(render_template("result.html", 
                                         newick_str=newick_str, 
                                         query_gene_name=seq_name, 
-                                        gene_webpage_url=db_url,
+                                        gene_webpage_url=shoot_wrapper.get_web_url(i_db),
                                         error=err_string,
                                         results_url=results_url))
         atr_samesite = 'Strict'
-        resp.set_cookie('iog', iog_str, samesite=atr_samesite)
-        resp.set_cookie('db', db_name, samesite=atr_samesite)
-        resp.set_cookie('subid', submission_id, samesite=atr_samesite)
-        resp.set_cookie('name', seq_name, samesite=atr_samesite)
+        path = "/result/%s" % submission_id
+        resp.set_cookie('iog', iog_str, path=path, samesite=atr_samesite)
+        resp.set_cookie('idb', str(i_db), path=path, samesite=atr_samesite)
+        resp.set_cookie('subid', submission_id, path=path, samesite=atr_samesite)
+        resp.set_cookie('name', seq_name, path=path, samesite=atr_samesite)
         return resp
     #else:
     #    # failure
@@ -211,7 +213,9 @@ def download_sequences():
         download_name = None
 
         iog = request.cookies.get('iog')
-        db = request.cookies.get('db')
+        #print(requesting)
+        idb = int(request.cookies.get('idb'))
+        #print(idb)
         subid = request.cookies.get('subid')
         gene_name = request.cookies.get('name')
         n_level = 5   # sensible default
@@ -224,7 +228,7 @@ def download_sequences():
                         n_level = None
             except (KeyError, ValueError):
                 pass
-        if db not in shoot_wrapper.available_databases:
+        if idb < 0 or idb >= len(shoot_wrapper.available_databases):
             err_string = "Unrecognised SHOOT database"
         elif not shoot_wrapper.valid_iog_format(iog):
             err_string = "Unrecognised tree"
@@ -233,7 +237,7 @@ def download_sequences():
         elif not shoot_wrapper.valid_gene_name(gene_name):
             err_string = "Invalid gene name"
         else:
-            fn = shoot_wrapper.create_fasta_file(db, iog, subid, gene_name, n_level)
+            fn = shoot_wrapper.create_fasta_file(idb, iog, subid, gene_name, n_level)
             download_name = "shoot_tree_%s_sequences.txt" % gene_name
         if fn is None:
             resp = make_response(render_template("result.html", 

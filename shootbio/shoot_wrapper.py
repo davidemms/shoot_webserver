@@ -313,8 +313,7 @@ def get_result(submission_id):
     for l in stdout:
         if l.startswith("WARNING: "):
             err_string = l.rstrip()
-        if l.startswith("Gene assigned to: "):
-            iog_str = l.split(": ", 1)[1].rstrip()[2:]   # clip off the 'OG'
+    iog_str = get_og_part(submission_id)
     try:
         newick_str = stdout[-1].rstrip()
         t = ete3.Tree(newick_str)
@@ -325,6 +324,29 @@ def get_result(submission_id):
         newick_str = "()myroot"
     return newick_str, err_string, submission_id, iog_str
 
+
+def get_og_part(submission_id):
+    fn = "/tmp/shoot_%s.fa.assign.txt" % submission_id
+    server_id = int(submission_id[0])
+    _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
+    cmd = """ssh %s 'cat %s'""" % (ssh_user_hostname, fn)
+    capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = [x for x in capture.stdout]
+    stderr = [x for x in capture.stderr]
+    try:
+        stdout = [x.decode() for x in stdout]
+        stderr = [x.decode() for x in stderr]
+    except (UnicodeDecodeError, AttributeError):
+        stdout = [x.encode() for x in stdout]
+        stderr = [x.encode() for x in stderr]
+    capture.communicate()
+    if len(stdout) > 0:
+        iog_str = stdout[0].strip()
+    else: 
+            iog_str = "-1"
+    return iog_str
+    
+    
 def valid_iog_format(iog_str):
     """
     Is the iog_str in the valid format (doesn't check if it exists))
@@ -386,11 +408,11 @@ def valid_gene_name(gene_name):
     except:
         return False
 
-def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
+def create_fasta_file(idb, iog_ipart_str, subid, gene_name = None, i_level=None):
     """
     Create the FASTA file of sequences for a user's results
     Args:
-        db - the shoot database name
+        idb - the shoot database index
         iog_ipart_str - the og or og.part their sequence was placed in
         i_level - the number of nodes above the query gene to the clade of interest
         subid - the id of their sequence submission
@@ -408,7 +430,7 @@ def create_fasta_file(db, iog_ipart_str, subid, gene_name = None, i_level=None):
             iog_str = iog_ipart_str
         server_id = subid[0]
         server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.specific_config(server_id)
-        db_path = shoot_db_dir + db + "/"
+        db_path = shoot_db_dir + get_database(idb) + "/"
         filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
         if gene_name is not None and i_level is not None:
             fn_og_seqs = "%s/Orthogroup_Sequences/OG%s.fa" % (db_path, iog_str)
