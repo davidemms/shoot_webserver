@@ -61,24 +61,23 @@
 </nav>
 
 <div class="container" id = 'Help'>   
-    <h1>Help & Documentation</h1>   
-    <h2>Options:</h1>
-       <h3>DIAMOND sensitivity</h3>
-              <p>By default SHOOT performs a DIAMOND normal sensitivity followed by an "ultra-sensitive" search if 
-              that finds no hits. As an alternative, you can request that a single ultra-sensitive search instead 
-              immediately.</p>
-       <h3>DIAMOND database</h3>
-              <p>The search against a DIAMOND database is ued to assign a gene to the correct homology group  
-              prior to phylogenetic placement. The default database (profiles of homology groups) is made up 
-              of sequences for each group, selected using k-means clustering, that are most representative of 
-              that group. In most cases this works well and the correct homology group for a query gene is easily
+    <!-- h1>Help & Documentation</h1 -->   
+    <h1>Options:</h1>
+       <h3>DIAMOND database: Best respresentatives / All sequences</h3>
+              <p class="text-justify">The search against a DIAMOND database is used to assign a gene to the correct homology group  
+              prior to phylogenetic placement. The default database (best representatives of homology groups) contains 
+              sequences selected using k-means clustering that best represent the sequence diversity of each group. 
+              In most cases this works well and the correct homology group for a query gene is easily
               identified. The alternative option is to use the database containing all sequences from all homology
               groups, which may work better in some cases.</p>
+       <h3>Initial DIAMOND sensitivity: Default / Ultra-sensitive</h3>
+              <p class="text-justify">By default SHOOT performs a DIAMOND normal sensitivity search. If this finds no hits it is followed by a slower 
+              "ultra-sensitive" search against the database of all sequences. The alternative option is to perform the slower ultra-sensitive search immediately.</p>
        <h3>MAFFT Options</h3>
-              <p>The alignment of the query sequence against the MSA of all the genes in its homology group is one 
-              of the most computationally expensive steps in a SHOOT query. Frr this reason MAFFT is used with options
-              giving high performance: "--retree 1 --maxiterate 0 --nofft". You can instead chose for MAFFT to run 
-              using its default options, which is slower but more accurate.</p>
+              <p class="text-justify">The alignment of the query sequence against the MSA of all the genes in its homology group is one 
+              of the most computationally expensive steps in a SHOOT query. For this reason MAFFT is used with options
+              giving high performance: "--retree 1 --maxiterate 0 --nofft". You can instead choose for MAFFT to run 
+              using its default options, which is slower but may produce more accurate results.</p>
 </div>
 
 <footer class="footer fixed-bottom bg-light">
