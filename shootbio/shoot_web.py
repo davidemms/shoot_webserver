@@ -68,7 +68,6 @@ def SpeciesTree_Prokaryotes():
  
 @app.route('/result', methods=['POST', 'GET'])
 def calculating():
-    # if method == 'POST':
     error = None
     form = request.form
     submitted_seq_data = form["seq_data"]
@@ -110,9 +109,6 @@ def calculating():
         resp = make_response(render_template("waiting.html", results_url=results_url))
         atr_samesite = 'Strict'
         path = "/result/%s" % submission_id
-        resp.set_cookie('subid', submission_id, path=path, samesite=atr_samesite)
-        resp.set_cookie('name', seq_name, path=path, samesite=atr_samesite)
-        resp.set_cookie('idb', str(i_db), path=path, samesite=atr_samesite)
         
         form = request.form
         thread = threading.Thread(target=run_shoot, args=(server_id, submission_id, seq_name, seq, db_name, 
@@ -133,92 +129,60 @@ def calculating():
 @app.route('/result/<result_id>', methods=['GET', ])
 def result(result_id):
     submission_id = result_id
-    seq_name = request.cookies.get('name')
-    i_db = int(request.cookies.get('idb'))
     results_url = url_for("result", result_id=submission_id, _external=True)
-    for _ in range(10):
-        status = shoot_wrapper.is_complete(submission_id)
-        if status:
-            break
-        time.sleep(1)
-    if status is False:
-        atr_samesite = 'Strict'
+    # for older results files (~7 days) apache may have deleted local checkpoint files
+    exists, complete = shoot_wrapper.exists_and_complete_remote_check(submission_id)
+    if complete:
+        shoot_wrapper.mark_complete(submission_id)
+    elif not exists:
+        # failure
+        newick_str = "()myroot"
+        err_string = "Resuls ID doesn't exist"
+        resp = make_response(render_template("result.html", 
+                                       newick_str="();", 
+                                       query_gene_name="Error", 
+                                       gene_webpage_url="",
+                                       error=err_string))
+        return resp
+    else:
+        # still running
+        for _ in range(10):
+            time.sleep(1)
+            complete = shoot_wrapper.is_complete(submission_id)
+            if complete:
+                break
+    if complete is False:
+        # send back waiting page, which will automaticaly call this url again
+        print("Wait")
         resp = make_response(render_template("waiting.html", results_url=results_url))
-        resp.set_cookie('subid', submission_id, samesite=atr_samesite)
-        resp.set_cookie('name', seq_name, samesite=atr_samesite)
-        resp.set_cookie('idb', str(i_db), samesite=atr_samesite)
-    elif status == True:
-        ret_val = shoot_wrapper.get_result(submission_id)
-        success_shoot = False if ret_val is None else True
-        if success_shoot:
-            newick_str, err_string, submission_id, iog_str = ret_val
-        else:
-            newick_str = "()myroot"
-            err_string = "ERROR: Submitted sequence was invalid"
-            iog_str = "-1"
+    elif complete == True:
+        success_shoot, newick_str, seq_name, genes_url, err_string = shoot_wrapper.get_result(submission_id)
+        # I don't think this occurs now, we've got the name that's used in the tree
         renamed_seq = "SHOOT_" + seq_name
         if renamed_seq in newick_str:
             seq_name = renamed_seq
-        
+        download_fa_url = url_for("download_sequences", result_id=submission_id, _external=True)
         resp = make_response(render_template("result.html", 
                                         newick_str=newick_str, 
                                         query_gene_name=seq_name, 
-                                        gene_webpage_url=shoot_wrapper.get_web_url(i_db),
+                                        gene_webpage_url=genes_url,
                                         error=err_string,
+                                        download_fa_url=download_fa_url,
                                         results_url=results_url))
-        atr_samesite = 'Strict'
         path = "/result/%s" % submission_id
-        resp.set_cookie('iog', iog_str, path=path, samesite=atr_samesite)
-        resp.set_cookie('idb', str(i_db), path=path, samesite=atr_samesite)
-        resp.set_cookie('subid', submission_id, path=path, samesite=atr_samesite)
-        resp.set_cookie('name', seq_name, path=path, samesite=atr_samesite)
         return resp
-    #else:
-    #    # failure
-    #    newick_str = "()myroot"
-    #    err_string = "Unknown failure"
-    #    resp = make_response(render_template("result.html", 
-    #                                    newick_str="();", 
-    #                                    query_gene_name="Error", 
-    #                                    gene_webpage_url="",
-    #                                    error=err_string))
     return resp
         
 
-# @app.route('/result2')
-# def result_test():
-#     newick_str="(((Blumeria_graminis_BLGH_03519:0.671414,Botrytis_cinerea_Bcin01g09730:0.12327)87:0.115042,(((Colletotrichum_graminicola_GLRG_03987:0.105424,Fusarium_oxysporum_FOXG_00607:0.225705)92:0.0766329,Magnaporthe_oryzae_MGG_04821:0.227089)78:0.0499628,Neurospora_crassa_NCU02739:0.229127)94:0.155455)82:0.0796659,(Zymoseptoria_tritici_Mycgr3G88038:1.03544,(Phaeosphaeria_nodorum_SNOG_12227:0.917734,(Aspergillus_fumigatus_CDV58_08741:0.0782832,Aspergillus_nidulans_ANIA_02113:0.180388)100:0.5926)76:0.191863)82:0.0796659);"
-#     seq_name = "a"
-#     err_string = ""
-#     iog_str = "-1"
-#     db_url = ""
-#     resp = make_response(render_template("result.html", 
-#                                 newick_str=newick_str, 
-#                                 query_gene_name=seq_name, 
-#                                     gene_webpage_url=db_url,
-#                                 error=err_string))
-#     atr_samesite = 'Strict'
-#     resp.set_cookie('iog', iog_str, samesite=atr_samesite)
-#     resp.set_cookie('db', "Results_Mar16", samesite=atr_samesite)
-#     resp.set_cookie('subid', "a"*16, samesite=atr_samesite)
-#     resp.set_cookie('QUERY_GENE', seq_name, samesite=atr_samesite)
-#     return resp
-
-
-@app.route('/download_fasta', methods=['GET', ])
-def download_sequences():
+@app.route('/result/<result_id>/download_fasta', methods=['GET', ])
+def download_sequences(result_id):
     try:
         err_string = "Data is no longer available, please resubmit your search"
         fn = None
         download_name = None
-
-        iog = request.cookies.get('iog')
-        #print(requesting)
-        idb = int(request.cookies.get('idb'))
-        #print(idb)
-        subid = request.cookies.get('subid')
-        gene_name = request.cookies.get('name')
+        subid = result_id
         n_level = 5   # sensible default
+        print(subid)
         if request.method == 'GET':
             try:
                 n_level_str = request.args.get('tl')
@@ -228,22 +192,19 @@ def download_sequences():
                         n_level = None
             except (KeyError, ValueError):
                 pass
-        if idb < 0 or idb >= len(shoot_wrapper.available_databases):
-            err_string = "Unrecognised SHOOT database"
-        elif not shoot_wrapper.valid_iog_format(iog):
-            err_string = "Unrecognised tree"
-        elif not shoot_wrapper.valid_subid_format(subid):
+        if not shoot_wrapper.valid_subid_format(subid):
             err_string = "Data is no longer available, please resubmit your search"
-        elif not shoot_wrapper.valid_gene_name(gene_name):
-            err_string = "Invalid gene name"
         else:
-            fn = shoot_wrapper.create_fasta_file(idb, iog, subid, gene_name, n_level)
+            fn, gene_name = shoot_wrapper.create_fasta_file(subid, n_level)
             download_name = "shoot_tree_%s_sequences.txt" % gene_name
         if fn is None:
             resp = make_response(render_template("result.html", 
                             newick_str=default_newick_str, 
                             query_gene_name="", 
-                            error=err_string))
+                            error=err_string,
+                            subid=subid,
+                            results_url="/"
+                            ))
             return resp
         else:
             return send_file(fn, as_attachment=True, attachment_filename=download_name)

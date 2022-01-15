@@ -21,6 +21,7 @@ web_db_urls = ["https://www.uniprot.org/uniprot/",
 gene_name_disallowed_chars_re = '[^A-Za-z0-9_\\-.]'
 gene_name_allowed_chars_re = "^[A-Za-z0-9_\\-.]*$"
 
+
 class server_config(object):
     def __init__(self):
         if not self.load_json_configuration():
@@ -195,6 +196,7 @@ def run_shoot_local(name, seq):
     # newick_str = "((%s:1.0,a:1.0):1.0,(b:1.0,c:1.0):1.0)" % name
     return newick_str, err_string
 
+
 def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_mafft_opts=0):
     """
     Args:
@@ -284,6 +286,11 @@ def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0
         err_string = "No homologs were found for the gene in this database"
         newick_str = "()myroot"
     return newick_str, err_string, submission_id, iog_str
+    
+    
+def exists(submission_id):
+    fn = "/tmp/shoot_%s.fa.started" % submission_id
+    return os.path.exists(fn)
 
 
 def is_complete(submission_id):
@@ -291,8 +298,33 @@ def is_complete(submission_id):
     return os.path.exists(fn)
 
 
-def get_result(submission_id):
+def mark_complete(submission_id):
+    # useful if local apache files have been deleted but remote files still exist
+    for x in ["started", "finished"]:
+        with open("/tmp/shoot_%s.fa.%s" % (submission_id, x), 'w') as outfile:
+            pass
+ 
+ 
+def remote_file_exists(fn, server_id):
+    _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
+    cmd='ssh -q {} [[ -f {} ]] && echo "Exists" || echo "Does not";'.format(ssh_user_hostname, fn)
+    capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    stdout = next(capture.stdout, b"")
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode()
+    return stdout.startswith("Exists")
     
+ 
+def exists_and_complete_remote_check(submission_id):
+    server_id = int(submission_id[0]) 
+    fn_in = "/tmp/shoot_%s.fa" % submission_id
+    fn_complete = fn_in + ".sh.log"
+    exists = remote_file_exists(fn_in, server_id)
+    complete = remote_file_exists(fn_complete, server_id)
+    return exists, complete 
+
+
+def get_result(submission_id):
     fn = "/tmp/shoot_%s.fa.shoot.tre" % submission_id
     server_id = int(submission_id[0])
     _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
@@ -309,23 +341,27 @@ def get_result(submission_id):
     capture.communicate()
     rc = capture.returncode    
     err_string = ""
-    iog_str = "-1"
-    for l in stdout:
-        if l.startswith("WARNING: "):
-            err_string = l.rstrip()
-    iog_str = get_og_part(submission_id)
+    # for l in stdout:
+    #    if l.startswith("WARNING: "):
+    #        err_string = l.rstrip()
+    success = False
+    db_url = ""
+    gene_name = ""
     try:
+        dbname, _, gene_name = get_dbname_ogpart_gene(submission_id)
+        db_url = web_db_urls[available_databases.index(dbname)]
         newick_str = stdout[-1].rstrip()
         t = ete3.Tree(newick_str)
         newick_str = newick_str[:-1] # remove semi-colon
+        success = True
     except Exception as e:
         print(str(e))
         err_string = "No homologs were found for the gene in this database"
-        newick_str = "()myroot"
-    return newick_str, err_string, submission_id, iog_str
+        newick_str = "()r"
+    return success, newick_str, gene_name, db_url, err_string
 
 
-def get_og_part(submission_id):
+def get_dbname_ogpart_gene(submission_id):
     fn = "/tmp/shoot_%s.fa.assign.txt" % submission_id
     server_id = int(submission_id[0])
     _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
@@ -340,11 +376,15 @@ def get_og_part(submission_id):
         stdout = [x.encode() for x in stdout]
         stderr = [x.encode() for x in stderr]
     capture.communicate()
-    if len(stdout) > 0:
-        iog_str = stdout[0].strip()
+    if len(stdout) > 2:
+        db_name = stdout[0].rstrip()
+        iog_str = stdout[1].rstrip()
+        gene_name = stdout[2].rstrip()
     else: 
-            iog_str = "-1"
-    return iog_str
+        db_name = "None"
+        iog_str = "-1"
+        gene_name = "query"
+    return db_name, iog_str, gene_name
     
     
 def valid_iog_format(iog_str):
@@ -378,6 +418,7 @@ def valid_iog_format(iog_str):
     except:
         return False
 
+
 def valid_subid_format(subid):
     """
     Is the subid in the valid format (doesn't check if it exists)
@@ -395,6 +436,7 @@ def valid_subid_format(subid):
     except:
         return False
 
+
 def valid_gene_name(gene_name):
     """
     Is the gene_name valid
@@ -408,29 +450,30 @@ def valid_gene_name(gene_name):
     except:
         return False
 
-def create_fasta_file(idb, iog_ipart_str, subid, gene_name = None, i_level=None):
+
+def create_fasta_file(subid, i_level=None):
     """
     Create the FASTA file of sequences for a user's results
     Args:
-        idb - the shoot database index
-        iog_ipart_str - the og or og.part their sequence was placed in
         i_level - the number of nodes above the query gene to the clade of interest
         subid - the id of their sequence submission
     Returns:
         fn - the full path filename for the file to download
     """
     return_fn = None
+    gene_name = "query"
     try:
         # create the file on the compute server
         # copy it to here
         # return the filename to download
+        db_name, iog_ipart_str, gene_name = get_dbname_ogpart_gene(subid)
         if "." in iog_ipart_str:
             iog_str = iog_ipart_str.split(".")[0]
         else:
             iog_str = iog_ipart_str
         server_id = subid[0]
         server_id, shoot_db_dir, shoot_exe, helper_exe, py_path, ssh_user_hostname = server.specific_config(server_id)
-        db_path = shoot_db_dir + get_database(idb) + "/"
+        db_path = shoot_db_dir + db_name + "/"
         filename = "/tmp/shoot_%s.tre_seqs.fa" % subid
         if gene_name is not None and i_level is not None:
             fn_og_seqs = "%s/Orthogroup_Sequences/OG%s.fa" % (db_path, iog_str)
@@ -450,9 +493,9 @@ def create_fasta_file(idb, iog_ipart_str, subid, gene_name = None, i_level=None)
             except (UnicodeDecodeError, AttributeError):
                 stderr = [x.encode() for x in stderr]
         if any("No such file or directory" in l for l in stderr):
-            return return_fn
+            return return_fn, gene_name
         return_fn = filename
     except Exception as e:
         print(str(e))
-    return return_fn
+    return return_fn, gene_name
 
