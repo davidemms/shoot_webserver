@@ -267,25 +267,26 @@ def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0
     finally:
         with open(fn_seq + ".finished", 'w') as outfile:
             pass
-    # print(output)
-    # print(rc)
-    # print(stderr)
-    # print(stdout)
-    iog_str = "-1"
-    for l in stdout:
-        if l.startswith("WARNING: "):
-            err_string = l.rstrip()
-        if l.startswith("Gene assigned to: "):
-            iog_str = l.split(": ", 1)[1].rstrip()[2:]   # clip off the 'OG'
-    try:
-        newick_str = stdout[-1].rstrip()
-        t = ete3.Tree(newick_str)
-        newick_str = newick_str[:-1] # remove semi-colon
-    except Exception as e:
-        print(str(e))
-        err_string = "No homologs were found for the gene in this database"
-        newick_str = "()myroot"
-    return newick_str, err_string, submission_id, iog_str
+    
+    # ~ # print(output)
+    # ~ # print(rc)
+    # ~ # print(stderr)
+    # ~ # print(stdout)
+    # ~ iog_str = "-1"
+    # ~ for l in stdout:
+        # ~ if l.startswith("WARNING: "):
+            # ~ err_string = l.rstrip()
+        # ~ if l.startswith("Gene assigned to: "):
+            # ~ iog_str = l.split(": ", 1)[1].rstrip()[2:]   # clip off the 'OG'
+    # ~ try:
+        # ~ newick_str = stdout[-1].rstrip()
+        # ~ t = ete3.Tree(newick_str)
+        # ~ newick_str = newick_str[:-1] # remove semi-colon
+    # ~ except Exception as e:
+        # ~ print(str(e))
+        # ~ err_string = "No homologs were found for the gene in this database"
+        # ~ newick_str = "()myroot"
+    # ~ return newick_str, err_string, submission_id, iog_str
     
     
 def exists(submission_id):
@@ -376,14 +377,17 @@ def get_dbname_ogpart_gene(submission_id):
         stdout = [x.encode() for x in stdout]
         stderr = [x.encode() for x in stderr]
     capture.communicate()
-    if len(stdout) > 2:
+    db_name = "None"
+    iog_str = "-1"
+    gene_name = "query"
+    if len(stdout) > 1:
         db_name = stdout[0].rstrip()
-        iog_str = stdout[1].rstrip()
-        gene_name = stdout[2].rstrip()
-    else: 
-        db_name = "None"
-        iog_str = "-1"
-        gene_name = "query"
+        if "\t" in stdout[1]:
+            i_tree, iog_str, gene_name = stdout[1].rstrip().split("\t")
+        elif len(stdout) > 2:
+            # old format, was only live for 15-16th Jan
+            iog_str = stdout[1].rstrip()
+            gene_name = stdout[2].rstrip()
     return db_name, iog_str, gene_name
     
     
