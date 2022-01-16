@@ -10,7 +10,7 @@ import numpy as np
 import ete3
 
 
-shoot_opt = "-u 2000 -l 50 -p"
+shoot_opt = "-u 2000 -l 50 -a"
 db_default = "UniProt_RefProteomes_homologs"  # note, no forward slash
 available_databases = [db_default, "Metazoa", "Plants", "Fungi", "BacteriaArchaea"]
 web_db_urls = ["https://www.uniprot.org/uniprot/", 
@@ -326,40 +326,45 @@ def exists_and_complete_remote_check(submission_id):
 
 
 def get_result(submission_id):
-    fn = "/tmp/shoot_%s.fa.shoot.tre" % submission_id
+    # Get how many tree files
     server_id = int(submission_id[0])
     _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
-    cmd = """ssh %s 'cat %s'""" % (ssh_user_hostname, fn)
-    capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout = [x for x in capture.stdout]
-    stderr = [x for x in capture.stderr]
-    try:
-        stdout = [x.decode() for x in stdout]
-        stderr = [x.decode() for x in stderr]
-    except (UnicodeDecodeError, AttributeError):
-        stdout = [x.encode() for x in stdout]
-        stderr = [x.encode() for x in stderr]
-    capture.communicate()
-    rc = capture.returncode    
+    dbname, iog_parts, scores, gene_names = get_dbname_ogpart_gene(submission_id)
+    db_url = web_db_urls[available_databases.index(dbname)]
     err_string = ""
-    # for l in stdout:
-    #    if l.startswith("WARNING: "):
-    #        err_string = l.rstrip()
-    success = False
-    db_url = ""
-    gene_name = ""
-    try:
-        dbname, _, gene_name = get_dbname_ogpart_gene(submission_id)
-        db_url = web_db_urls[available_databases.index(dbname)]
-        newick_str = stdout[-1].rstrip()
-        t = ete3.Tree(newick_str)
-        newick_str = newick_str[:-1] # remove semi-colon
-        success = True
-    except Exception as e:
-        print(str(e))
+    success = True
+    gene_names_returned = []
+    groups_returned = []
+    scores_returned = []
+    nwk_strs = []
+    for i_tree in range(len(iog_parts)):
+        if i_tree == 0 and len(iog_parts) == 1:
+            fn = "/tmp/shoot_%s.fa.shoot.tre" % submission_id
+        else:
+            fn = "/tmp/shoot_%s.fa.shoot.%d.tre" % (submission_id, i_tree)
+        cmd = """ssh %s 'cat %s'""" % (ssh_user_hostname, fn)
+        capture = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        stdout = [x for x in capture.stdout]
+        if isinstance(stdout[0], bytes):
+            stdout = [x.decode() for x in stdout]   
+        try:
+            newick_str = stdout[0].rstrip()
+            t = ete3.Tree(newick_str)
+            newick_str = newick_str[:-1] # remove semi-colon
+            nwk_strs.append(newick_str)
+            gene_names_returned.append(gene_names[i_tree])
+            groups_returned.append(iog_parts[i_tree])
+            scores_returned.append(scores[i_tree])
+        except Exception as e:
+            print(str(e))
+    if len(nwk_strs) == 0:
+        success = False
+        nwk_strs.append("()r")
         err_string = "No homologs were found for the gene in this database"
-        newick_str = "()r"
-    return success, newick_str, gene_name, db_url, err_string
+        gene_names_returned.append("")
+        groups_returned.append("")
+        scores_returned(1.0)
+    return success, nwk_strs, gene_names_returned, groups_returned, scores_returned, db_url, err_string
 
 
 def get_dbname_ogpart_gene(submission_id):
@@ -378,17 +383,22 @@ def get_dbname_ogpart_gene(submission_id):
         stderr = [x.encode() for x in stderr]
     capture.communicate()
     db_name = "None"
-    iog_str = "-1"
-    gene_name = "query"
+    iog_strs = []
+    gene_names = []
+    scores = []
     if len(stdout) > 1:
         db_name = stdout[0].rstrip()
         if "\t" in stdout[1]:
-            i_tree, iog_str, gene_name = stdout[1].rstrip().split("\t")
+            for line in stdout[1:]:
+                i_tree, iog_str, score, gene_name = line.rstrip().split("\t")
+                iog_strs.append(iog_str)
+                gene_names.append(gene_name)
+                scores.append(score)
         elif len(stdout) > 2:
             # old format, was only live for 15-16th Jan
-            iog_str = stdout[1].rstrip()
-            gene_name = stdout[2].rstrip()
-    return db_name, iog_str, gene_name
+            iog_strs.append(stdout[1].rstrip())
+            gene_names.append(stdout[2].rstrip())
+    return db_name, iog_strs, scores, gene_names
     
     
 def valid_iog_format(iog_str):
@@ -470,7 +480,9 @@ def create_fasta_file(subid, i_level=None):
         # create the file on the compute server
         # copy it to here
         # return the filename to download
-        db_name, iog_ipart_str, gene_name = get_dbname_ogpart_gene(subid)
+        db_name, iog_ipart_list, _, gene_name_list = get_dbname_ogpart_gene(subid)
+        iog_ipart_str = iog_ipart_list[0]
+        gene_name = gene_name_list[0]
         if "." in iog_ipart_str:
             iog_str = iog_ipart_str.split(".")[0]
         else:

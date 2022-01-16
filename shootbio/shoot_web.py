@@ -30,9 +30,12 @@ def help():
 
 def return_species_tree_page(newick_str, tree_name):    
     return render_template("result.html", 
-            newick_str=newick_str,
+            newick_strings=[newick_str],
+            groups_scores=[("","")],
+            gene_names_in_trees=[tree_name],
             query_gene_name=tree_name, 
-            gene_webpage_url = "",
+            gene_webpage_url="",
+            download_fa_url="",
             error="")
 
 
@@ -118,9 +121,12 @@ def calculating():
         newick_str = "()myroot"
         err_string = "ERROR: Submitted sequence was invalid"
         resp = make_response(render_template("result.html", 
-                                        newick_str=newick_str, 
+                                        newick_strings=[newick_str], 
+                                        groups_scores = [("","")],
+                                        gene_names_in_trees=[""],
                                         query_gene_name="", 
                                         gene_webpage_url="",
+                                        download_fa_url="",
                                         error=err_string))
     
     return resp
@@ -136,12 +142,14 @@ def result(result_id):
         shoot_wrapper.mark_complete(submission_id)
     elif not exists:
         # failure
-        newick_str = "()myroot"
         err_string = "Resuls ID doesn't exist"
         resp = make_response(render_template("result.html", 
-                                       newick_str="();", 
+                                       newick_strings=["()root;"],
+                                       groups_scores = [("","")],
+                                       gene_names_in_trees =[""], 
                                        query_gene_name="Error", 
                                        gene_webpage_url="",
+                                       download_fa_url="",
                                        error=err_string))
         return resp
     else:
@@ -156,15 +164,16 @@ def result(result_id):
         print("Wait")
         resp = make_response(render_template("waiting.html", results_url=results_url))
     elif complete == True:
-        success_shoot, newick_str, seq_name, genes_url, err_string = shoot_wrapper.get_result(submission_id)
-        # I don't think this occurs now, we've got the name that's used in the tree
-        renamed_seq = "SHOOT_" + seq_name
-        if renamed_seq in newick_str:
-            seq_name = renamed_seq
+        success_shoot, newick_strs, seq_names, groups, scores, genes_url, err_string = shoot_wrapper.get_result(submission_id)
+        # I don't think this occurs now, we've got the name that's used in the tree?
+        seq_names = ["SHOOT_"+s if "SHOOT_"+s in nwk else s for s,nwk in zip(seq_names, newick_strs)]
         download_fa_url = url_for("download_sequences", result_id=submission_id, _external=True)
+        groups_scores = list(zip(groups, scores))
         resp = make_response(render_template("result.html", 
-                                        newick_str=newick_str, 
-                                        query_gene_name=seq_name, 
+                                        newick_strings=newick_strs, 
+                                        gene_names_in_trees=seq_names, 
+                                        groups_scores=groups_scores,
+                                        query_gene_name=seq_names[0], 
                                         gene_webpage_url=genes_url,
                                         error=err_string,
                                         download_fa_url=download_fa_url,
@@ -199,11 +208,13 @@ def download_sequences(result_id):
             download_name = "shoot_tree_%s_sequences.txt" % gene_name
         if fn is None:
             resp = make_response(render_template("result.html", 
-                            newick_str=default_newick_str, 
-                            query_gene_name="", 
+                            newick_strings=[default_newick_str], 
+                            groups_scores = [("","")],
+                            gene_names_in_trees=[""],
+                            query_gene_name="",  
+                            gene_webpage_url = "",
+                            download_fa_url="",
                             error=err_string,
-                            subid=subid,
-                            results_url="/"
                             ))
             return resp
         else:
