@@ -197,7 +197,15 @@ def run_shoot_local(name, seq):
     return newick_str, err_string
 
 
-def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0, i_dmnd_profiles=0, i_mafft_opts=0):
+def run_shoot_remote(server_id, 
+                     submission_id, 
+                     name, 
+                     seq, 
+                     db_name, 
+                     i_dmnd_sens=0, 
+                     i_dmnd_profiles=0, 
+                     i_mafft_opts=0, 
+                     i_full_tree_options=0):
     """
     Args:
         name - gene name
@@ -206,6 +214,7 @@ def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0
         i_dmnd_sens - 0: default SHOOT sensitivity for DIAMOND search
         i_dmnd_profiles - 0: default SHOOT profiles database
         i_mafft_opts - 0: default SHOOT MAFFT options (i.e. accelerated)
+        i_full_tree_options - 0: default supetree method
     Returns:
         newick_str
         err_string
@@ -240,6 +249,8 @@ def run_shoot_remote(server_id, submission_id, name, seq, db_name, i_dmnd_sens=0
         shoot_opt += " --profiles_all"
     if i_mafft_opts != 0:
         shoot_opt += " --mafft_defaults"
+    if i_full_tree_options != 0:
+        shoot_opt += " -f"
     cmd = """ssh %s 'echo -en "%s" > %s ; export PYTHONPATH=%s ; %s %s %s %s'""" % (
         ssh_user_hostname, 
         fasta_conts, 

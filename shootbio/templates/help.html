@@ -78,6 +78,17 @@
               of the most computationally expensive steps in a SHOOT query. For this reason MAFFT is used with options
               giving high performance: "--retree 1 --maxiterate 0 --nofft". You can instead choose for MAFFT to run 
               using its default options, which is slower but may produce more accurate results.</p>
+       <h3>Large Trees</h3>
+              <p class="text-justify">The largest gene trees in the databases (>2500 genes) have been split into subtrees since phylogentic placement 
+              into these large trees can be very slow. At most this affects the 40 largest trees in any database. For these largest trees DIAMOND is
+              used to assign the query sequence to a sub-tree and phylogentic methods (MSA & tree inference) are used to place the gene in its correct 
+              position wihtin the sub-tree. The sub-tree is then grafted back into the original super-tree, which is returned to the user, thus giving 
+              a view of the gene in the complete gene family at lower computational cost. There is, however, a risk of an incorrect placement using this 
+              method because a DIAMOND search is not as accurate. In the worst case the best hit could potentially be in a different sub-tree within this 
+              large homologous family of genes. In this case, the subsequent phylogentic analysis will be incorrect because an attempt has been made to
+              place the gene in the wrong sub-tree. The option 'Phylogenetics on full tree' uses DIAMOND to assign the sequence only to the level of the 
+              full tree, and phylogenetic methods are used to determine its position within the tree. While this method it less risky, it could take 3-30 
+              minutes or more.</p>
 </div>
 
 <footer class="footer fixed-bottom bg-light">

@@ -85,6 +85,7 @@ def calculating():
             i_sensitivity = int(form["i_sensitivity"])
             i_dmnd_profiles = int(form["i_dmnd_profiles"])
             i_mafft_options = int(form["i_mafft_options"])
+            i_full_tree_options = int(form["i_full_tree_options"])
             success_db = True
         except:
             pass
@@ -99,9 +100,10 @@ def calculating():
                                     seq_name, 
                                     seq, 
                                     db_name,
-                                    i_sensitivity,
-                                    i_dmnd_profiles,
-                                    i_mafft_options,
+                                    i_dmnd_sens=i_sensitivity,
+                                    i_dmnd_profiles=i_dmnd_profiles,
+                                    i_mafft_opts=i_mafft_options,
+                                    i_full_tree_options=i_full_tree_options,
                                     )
     
     if success_db and success_seq:
