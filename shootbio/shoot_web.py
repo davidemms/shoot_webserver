@@ -163,7 +163,6 @@ def result(result_id):
                 break
     if complete is False:
         # send back waiting page, which will automaticaly call this url again
-        print("Wait")
         resp = make_response(render_template("waiting.html", results_url=results_url))
     elif complete == True:
         success_shoot, newick_strs, seq_names, groups, scores, genes_url, err_string = shoot_wrapper.get_result(submission_id)

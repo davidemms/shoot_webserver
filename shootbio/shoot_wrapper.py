@@ -341,7 +341,6 @@ def get_result(submission_id):
     server_id = int(submission_id[0])
     _, _, _, _, _, ssh_user_hostname = server.specific_config(server_id)
     dbname, iog_parts, scores, gene_names = get_dbname_ogpart_gene(submission_id)
-    db_url = web_db_urls[available_databases.index(dbname)]
     err_string = ""
     success = True
     gene_names_returned = []
@@ -349,6 +348,8 @@ def get_result(submission_id):
     scores_returned = []
     nwk_strs = []
     for i_tree in range(len(iog_parts)):
+        # db_url only available if a hit was found
+        db_url = web_db_urls[available_databases.index(dbname)]
         if i_tree == 0 and len(iog_parts) == 1:
             fn = "/tmp/shoot_%s.fa.shoot.tre" % submission_id
         else:
@@ -369,12 +370,13 @@ def get_result(submission_id):
         except Exception as e:
             print(str(e))
     if len(nwk_strs) == 0:
+        db_url = ""
         success = False
         nwk_strs.append("()r")
         err_string = "No homologs were found for the gene in this database"
         gene_names_returned.append("")
         groups_returned.append("")
-        scores_returned(1.0)
+        scores_returned.append(1.0)
     return success, nwk_strs, gene_names_returned, groups_returned, scores_returned, db_url, err_string
 
 
